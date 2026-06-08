@@ -1,0 +1,68 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { ApiService } from '../../core/api.service';
+import { fadeInUp } from '../../shared/animations/fade-in-up';
+import { Usuario } from '../../core/modelos';
+
+@Component({
+  selector: 'app-administracion',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  animations: [fadeInUp],
+  template: `
+    <section class="page-shell" @fadeInUp>
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">Administracion</p>
+          <h1 class="page-title">Panel administrativo</h1>
+          <p class="page-subtitle">Indicadores, solicitudes pendientes, aprobacion de personal y control de usuarios.</p>
+        </div>
+        <button class="boton-primario" routerLink="/usuarios">Crear usuario</button>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-4">
+        <article class="stat-card" *ngFor="let item of indicadores | keyvalue">
+          <p class="stat-label">{{ item.key }}</p>
+          <p class="stat-value">{{ item.value }}</p>
+          <p class="stat-note">Sistema</p>
+        </article>
+      </div>
+
+      <div class="table-wrap overflow-x-auto">
+        <div class="border-b border-slate-200 p-5 dark:border-slate-800">
+          <h2 class="section-title">Solicitudes pendientes</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Recepcionistas y veterinarios quedan pendientes hasta que admin apruebe.</p>
+        </div>
+        <table class="data-table" *ngIf="solicitudes.length; else sinSolicitudes">
+          <thead><tr><th>Usuario</th><th>Email</th><th>Telefono</th><th>Rol</th><th>Accion</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let u of solicitudes">
+              <td class="font-black text-slate-950 dark:text-white">{{ u.nombres }} {{ u.apellidos }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.telefono }}</td>
+              <td><span class="badge badge-info">{{ u.roles?.[0]?.nombre }}</span></td>
+              <td><button class="boton-primario" (click)="aprobar(u.id)">Aprobar</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #sinSolicitudes><p class="p-5 text-sm text-slate-500 dark:text-slate-400">No hay solicitudes pendientes.</p></ng-template>
+      </div>
+    </section>
+  `
+})
+export class AdministracionComponent implements OnInit {
+  indicadores: Record<string, number> = {};
+  solicitudes: Usuario[] = [];
+  constructor(private api: ApiService) {}
+  ngOnInit() {
+    this.api.administracion().subscribe(r => this.indicadores = r.data);
+    this.api.solicitudesPendientes().subscribe(r => this.solicitudes = r.data);
+  }
+  aprobar(id: number) {
+    this.api.aprobarUsuario(id).subscribe(() => {
+      this.solicitudes = this.solicitudes.filter(s => s.id !== id);
+      this.indicadores['solicitudes'] = Math.max(0, (this.indicadores['solicitudes'] || 1) - 1);
+    });
+  }
+}

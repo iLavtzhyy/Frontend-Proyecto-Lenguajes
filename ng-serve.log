@@ -1,0 +1,272 @@
+
+> vetsphere-frontend@1.0.0 dev
+> ng serve --host 0.0.0.0 --port 4200
+
+
+Warning: This is a simple server for use in testing or debugging Angular applications
+locally. It hasn't been reviewed for security issues.
+
+Binding this server to an open connection can result in compromising your application or
+computer. Using a different host than the one passed to the "--host" flag might result in
+websocket connection issues. You might need to use "--disable-host-check" if that's the
+case.
+    
+****************************************************************************************
+This is a simple server for use in testing or debugging Angular applications locally.
+It hasn't been reviewed for security issues.
+
+DON'T USE IT FOR PRODUCTION!
+****************************************************************************************
+- Generating browser application bundles (phase: setup)...
+√ Browser application bundle generation complete.
+
+Initial chunk files   | Names         |  Raw size | Estimated transfer size
+main.js               | main          | 513.40 kB |               130.08 kB
+styles.css, styles.js | styles        | 109.96 kB |                26.76 kB
+polyfills.js          | polyfills     | 105.40 kB |                32.21 kB
+runtime.js            | runtime       |   1.24 kB |               677 bytes
+
+                      | Initial total | 730.01 kB |               189.71 kB
+
+Build at: 2026-06-08T14:21:10.475Z - Hash: 48061ea036f0c742 - Time: 18758ms
+
+** Angular Live Development Server is listening on 0.0.0.0:4200, open your browser on http://localhost:4200/ **
+
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 513.99 kB |               130.26 kB
+runtime.js          | runtime |   1.24 kB |               673 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:32:31.923Z - Hash: 7f2e39d425a055e7 - Time: 13904ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+
+
+4 unchanged chunks
+
+Build at: 2026-06-08T14:32:34.294Z - Hash: 7f2e39d425a055e7 - Time: 2317ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 514.01 kB |               130.27 kB
+runtime.js          | runtime |   1.24 kB |               682 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:39:07.804Z - Hash: 97a26afac54c4258 - Time: 30345ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+
+
+4 unchanged chunks
+
+Build at: 2026-06-08T14:46:27.749Z - Hash: 97a26afac54c4258 - Time: 2989ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 515.53 kB |               130.46 kB
+runtime.js          | runtime |   1.24 kB |               677 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:47:10.710Z - Hash: 0d76fd7eadce5463 - Time: 13890ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 515.60 kB |               130.48 kB
+runtime.js          | runtime |   1.24 kB |               675 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:48:34.346Z - Hash: 047791f468e8dc56 - Time: 36875ms
+
+Error: Inlining of fonts failed. An error has occurred while retrieving https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap over the internet.
+connect ETIMEDOUT 172.217.28.106:443
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 523.16 kB |               131.47 kB
+runtime.js          | runtime |   1.24 kB |               677 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:49:37.791Z - Hash: 1b980750431c236e - Time: 13936ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 520.19 kB |               131.02 kB
+runtime.js          | runtime |   1.24 kB |               676 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:49:51.652Z - Hash: aa4c7bcd88b98dbc - Time: 12130ms
+
+./src/app/app.routes.ts:10:0-75 - Error: Module not found: Error: Can't resolve './features/farmacia/farmacia.component' in 'C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app'
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 520.44 kB |               131.25 kB
+runtime.js          | runtime |   1.24 kB |               677 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:51:08.427Z - Hash: bd8676af36f5bec0 - Time: 16688ms
+
+./src/app/features/farmacia/farmacia.component.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/ivy/index.js):
+Error: C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app\features\farmacia\farmacia.component.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size | Estimated transfer size
+runtime.js          | runtime |  1.24 kB |               679 bytes
+
+3 unchanged chunks
+
+Build at: 2026-06-08T14:52:18.781Z - Hash: d58c66ccae9285b8 - Time: 2874ms
+
+./src/app/features/farmacia/farmacia.component.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/ivy/index.js):
+Error: C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app\features\farmacia\farmacia.component.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size | Estimated transfer size
+runtime.js          | runtime |  1.24 kB |               679 bytes
+
+3 unchanged chunks
+
+Build at: 2026-06-08T14:53:38.938Z - Hash: 587f88f79f1f56d1 - Time: 2052ms
+
+./src/app/features/farmacia/farmacia.component.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/ivy/index.js):
+Error: C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app\features\farmacia\farmacia.component.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+
+
+4 unchanged chunks
+
+Build at: 2026-06-08T14:54:51.599Z - Hash: 587f88f79f1f56d1 - Time: 1770ms
+
+./src/app/features/farmacia/farmacia.component.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/ivy/index.js):
+Error: C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app\features\farmacia\farmacia.component.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+
+
+4 unchanged chunks
+
+Build at: 2026-06-08T14:55:58.311Z - Hash: 587f88f79f1f56d1 - Time: 1915ms
+
+./src/app/features/farmacia/farmacia.component.ts - Error: Module build failed (from ./node_modules/@ngtools/webpack/src/ivy/index.js):
+Error: C:\Users\ESTUDIANTES-ITQ\Documents\Veterinaria\frontend\src\app\features\farmacia\farmacia.component.ts is missing from the TypeScript compilation. Please make sure it is in your tsconfig via the 'files' or 'include' property.
+
+Error: src/app/app.routes.ts:11:35 - error TS2307: Cannot find module './features/farmacia/farmacia.component' or its corresponding type declarations.
+
+11 import { FarmaciaComponent } from './features/farmacia/farmacia.component';
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 573.02 kB |               136.51 kB
+runtime.js          | runtime |   1.24 kB |               676 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:56:28.701Z - Hash: 73ad51589ddd0337 - Time: 11595ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 573.02 kB |               136.57 kB
+runtime.js          | runtime |   1.24 kB |               680 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:56:50.109Z - Hash: ad4ce04042769f03 - Time: 11156ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   |  Raw size | Estimated transfer size
+main.js             | main    | 573.04 kB |               136.60 kB
+runtime.js          | runtime |   1.24 kB |               676 bytes
+
+2 unchanged chunks
+
+Build at: 2026-06-08T14:57:06.615Z - Hash: eab09cbd61e310eb - Time: 10419ms
+
+√ Compiled successfully.

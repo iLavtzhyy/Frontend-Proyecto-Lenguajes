@@ -1,0 +1,47 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../../core/api.service';
+import { fadeInUp } from '../../shared/animations/fade-in-up';
+
+@Component({
+  selector: 'app-recepcion',
+  standalone: true,
+  imports: [CommonModule],
+  animations: [fadeInUp],
+  template: `
+    <section class="page-shell" @fadeInUp>
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">Recepcion</p>
+          <h1 class="page-title">Admisiones y agenda</h1>
+          <p class="page-subtitle">Gestion de citas, confirmaciones, triage, recepcion de pacientes y derivacion al area clinica.</p>
+        </div>
+        <button class="boton-primario">Nueva cita</button>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-3">
+        <article class="stat-card" *ngFor="let item of panel | keyvalue">
+          <p class="stat-label">{{ item.key }}</p>
+          <p class="stat-value">{{ item.value }}</p>
+          <p class="stat-note">Recepcion</p>
+        </article>
+      </div>
+
+      <div class="panel p-6">
+        <h2 class="section-title">Flujo de admision</h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Etapas esperadas antes de la atencion medica.</p>
+        <div class="mt-5 grid gap-4 md:grid-cols-4">
+          <div class="rounded-lg border border-cyan-100 bg-cyan-50 p-4 font-black text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-200">Agenda</div>
+          <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-4 font-black text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">Confirmacion</div>
+          <div class="rounded-lg border border-amber-100 bg-amber-50 p-4 font-black text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Triage</div>
+          <div class="rounded-lg border border-rose-100 bg-rose-50 p-4 font-black text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">Atencion medica</div>
+        </div>
+      </div>
+    </section>
+  `
+})
+export class RecepcionComponent implements OnInit {
+  panel: Record<string, number> = {};
+  constructor(private api: ApiService) {}
+  ngOnInit() { this.api.recepcion().subscribe(r => this.panel = r.data); }
+}
