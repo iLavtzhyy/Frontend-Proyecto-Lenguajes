@@ -13,6 +13,9 @@ export class ApiService {
   }
   registrar(datos: any) { return this.http.post<ApiResponse<Usuario>>(`${this.api}/auth/registro`, datos); }
   verificar(datos: { email: string; codigo: string }) { return this.http.post<ApiResponse<any>>(`${this.api}/auth/verificar-2fa`, datos); }
+  reenviarCodigo(email: string) { return this.http.post<ApiResponse<void>>(`${this.api}/auth/reenviar-codigo`, { email }); }
+  solicitarRecuperacion(email: string) { return this.http.post<ApiResponse<void>>(`${this.api}/auth/solicitar-recuperacion`, { email }); }
+  restablecerPassword(datos: { email: string; codigo: string; nuevaPassword: string }) { return this.http.post<ApiResponse<void>>(`${this.api}/auth/restablecer-password`, datos); }
   dashboard() { return this.http.get<ApiResponse<Dashboard>>(`${this.api}/dashboard`); }
   mascotas() { return this.http.get<ApiResponse<Mascota[]>>(`${this.api}/mascotas`); }
   crearMascota(datos: any, foto?: File | null) {

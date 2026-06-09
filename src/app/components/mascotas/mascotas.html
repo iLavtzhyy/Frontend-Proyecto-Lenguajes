@@ -1,0 +1,205 @@
+    <section class="page-shell" @fadeInUp>
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">Pacientes registrados</p>
+          <h1 class="page-title">Mascotas e historial clinico</h1>
+          <p class="page-subtitle">Gestiona pacientes, propietarios, ficha clinica, archivos medicos y linea de tiempo de cada mascota.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="boton-secundario" type="button" (click)="descargarExcel()">
+            <app-icono name="file" [size]="18"></app-icono>
+            Excel financiero
+          </button>
+          <button class="boton-primario" type="button" (click)="nuevo()">
+            <app-icono name="heart" [size]="18"></app-icono>
+            Nueva mascota
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-6 xl:grid-cols-[360px_1fr]">
+        <aside class="panel p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="section-title">Pacientes</h2>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ mascotas.length }} mascotas registradas</p>
+            </div>
+            <button class="boton-icono" type="button" (click)="nuevo()" aria-label="Nueva mascota">
+              <app-icono name="heart" [size]="20"></app-icono>
+            </button>
+          </div>
+
+          <input class="campo mt-4 w-full" placeholder="Buscar mascota, especie o cliente..." [(ngModel)]="busqueda">
+
+          <div class="mt-4 max-h-[620px] space-y-2 overflow-y-auto pr-1">
+            <button class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition"
+                    [ngClass]="seleccionada?.id === mascota.id ? 'border-cyan-300 bg-cyan-50 dark:border-cyan-700 dark:bg-cyan-950/30' : 'border-slate-200 bg-white hover:border-cyan-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-cyan-700'"
+                    *ngFor="let mascota of filtradas"
+                    (click)="seleccionarMascota(mascota)">
+              <img class="h-14 w-14 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-700" [src]="fotoMascota(mascota)" [alt]="mascota.nombre">
+              <span class="min-w-0">
+                <b class="block truncate text-slate-950 dark:text-white">{{ mascota.nombre }}</b>
+                <small class="block truncate text-slate-500 dark:text-slate-400">{{ mascota.especie }} - {{ mascota.propietario?.nombres }} {{ mascota.propietario?.apellidos }}</small>
+              </span>
+            </button>
+          </div>
+        </aside>
+
+        <div class="grid gap-6 2xl:grid-cols-[1fr_420px]">
+          <article class="panel overflow-hidden" *ngIf="seleccionada as mascota">
+            <div class="relative min-h-72 overflow-hidden">
+              <img class="absolute inset-0 h-full w-full object-cover" [src]="fotoMascota(mascota)" [alt]="mascota.nombre">
+              <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/50 to-transparent"></div>
+              <div class="relative flex min-h-72 flex-col justify-end p-6 text-white">
+                <p class="text-sm font-black uppercase text-cyan-100">{{ mascota.raza || 'Paciente VetSphere' }}</p>
+                <h2 class="mt-2 text-4xl font-black sm:text-5xl">{{ mascota.nombre }}</h2>
+                <p class="mt-3 max-w-2xl text-sm text-slate-200">
+                  {{ mascota.especie }} - {{ mascota.sexo }} - {{ mascota.color }} - {{ mascota.pesoKg || 0 }} kg
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span class="badge badge-info">{{ mascota.estado || 'ACTIVA' }}</span>
+                  <span class="badge bg-white/15 text-white">Propietario: {{ mascota.propietario?.nombres }} {{ mascota.propietario?.apellidos }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid gap-6 p-5 lg:grid-cols-[1fr_300px]">
+              <section>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 class="section-title">Linea de tiempo clinica</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Consultas, vacunas, procedimientos y cirugias asociadas.</p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="boton-secundario" type="button" (click)="editar(mascota)">Editar</button>
+                    <button class="boton-secundario" type="button" (click)="descargarPdf(mascota.id)">PDF</button>
+                    <button class="boton-secundario" type="button" (click)="eliminar(mascota)">Eliminar</button>
+                  </div>
+                </div>
+
+                <div class="mt-6 space-y-4 border-l-2 border-cyan-200 pl-6 dark:border-cyan-900" *ngIf="eventos(mascota).length; else sinEventos">
+                  <div class="relative rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900" *ngFor="let evento of eventos(mascota)">
+                    <span class="absolute -left-[33px] top-5 h-4 w-4 rounded-full border-4 border-white bg-cyan-500 dark:border-slate-900"></span>
+                    <p class="text-xs font-black uppercase text-cyan-700 dark:text-cyan-300">{{ evento.fecha | date:'dd/MM/yyyy HH:mm' }} - {{ evento.tipo }}</p>
+                    <h4 class="mt-1 text-lg font-black text-slate-950 dark:text-white">{{ evento.titulo }}</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ evento.detalle }}</p>
+                  </div>
+                </div>
+                <ng-template #sinEventos>
+                  <div class="soft-panel mt-6 text-sm text-slate-500 dark:text-slate-400">Todavia no hay eventos clinicos registrados para esta mascota.</div>
+                </ng-template>
+              </section>
+
+              <aside class="space-y-4">
+                <div class="soft-panel">
+                  <p class="form-label">Ficha rapida</p>
+                  <dl class="mt-4 space-y-3 text-sm">
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">Nacimiento</dt><dd class="font-black text-slate-950 dark:text-white">{{ mascota.fechaNacimiento || 'Sin dato' }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">Peso</dt><dd class="font-black text-slate-950 dark:text-white">{{ mascota.pesoKg || 0 }} kg</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">Color</dt><dd class="font-black text-slate-950 dark:text-white">{{ mascota.color || 'Sin dato' }}</dd></div>
+                  </dl>
+                </div>
+
+                <div class="rounded-lg border-2 border-dashed border-cyan-300 bg-cyan-50 p-5 text-center dark:border-cyan-800 dark:bg-cyan-950/30"
+                     (drop)="soltar($event)" (dragover)="$event.preventDefault()">
+                  <p class="text-lg font-black text-slate-950 dark:text-white">Subir archivo medico</p>
+                  <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Arrastra radiografias, fotos o resultados.</p>
+                  <input class="mt-4 w-full text-sm text-slate-600 dark:text-slate-300" type="file" (change)="seleccionar($event)">
+                  <p class="mt-4 text-xs font-bold text-cyan-800 dark:text-cyan-300" *ngIf="mensajeArchivo">{{ mensajeArchivo }}</p>
+                </div>
+              </aside>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <div class="fixed inset-0 z-50 bg-slate-950/60 p-3 backdrop-blur-sm sm:flex sm:justify-end sm:p-5"
+           *ngIf="formularioAbierto"
+           (click)="cerrarFormulario()">
+        <aside class="panel h-full w-full max-w-xl overflow-y-auto p-5 shadow-2xl sm:p-6"
+               (click)="$event.stopPropagation()">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="page-eyebrow">{{ editandoId ? 'Editar paciente' : 'Nuevo paciente' }}</p>
+              <h2 class="section-title">Formulario de mascota</h2>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {{ editandoId ? 'Actualiza ficha, propietario y estado clinico.' : 'Registra una mascota nueva con su propietario y ficha inicial.' }}
+              </p>
+            </div>
+            <button class="boton-icono" type="button" (click)="cerrarFormulario()" aria-label="Cerrar formulario">
+              <app-icono name="x" [size]="18"></app-icono>
+            </button>
+          </div>
+
+          <form class="mt-5 grid gap-4" (ngSubmit)="guardar()">
+            <label class="grid gap-2">
+              <span class="form-label">Nombre de la mascota</span>
+              <input class="campo" name="nombre" [(ngModel)]="form.nombre" required>
+            </label>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2">
+                <span class="form-label">Especie</span>
+                <select class="campo" name="especie" [(ngModel)]="form.especie">
+                  <option>Canino</option>
+                  <option>Felino</option>
+                  <option>Exotico</option>
+                  <option>Ave</option>
+                </select>
+              </label>
+              <label class="grid gap-2">
+                <span class="form-label">Sexo</span>
+                <select class="campo" name="sexo" [(ngModel)]="form.sexo">
+                  <option>Macho</option>
+                  <option>Hembra</option>
+                </select>
+              </label>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2">
+                <span class="form-label">Raza</span>
+                <input class="campo" name="raza" [(ngModel)]="form.raza">
+              </label>
+              <label class="grid gap-2">
+                <span class="form-label">Color</span>
+                <input class="campo" name="color" [(ngModel)]="form.color">
+              </label>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2">
+                <span class="form-label">Peso kg</span>
+                <input class="campo" type="number" step="0.1" name="pesoKg" [(ngModel)]="form.pesoKg">
+              </label>
+              <label class="grid gap-2">
+                <span class="form-label">Nacimiento</span>
+                <input class="campo" type="date" name="fechaNacimiento" [(ngModel)]="form.fechaNacimiento">
+              </label>
+            </div>
+            <label class="grid gap-2">
+              <span class="form-label">Cliente propietario</span>
+              <select class="campo" name="propietarioId" [(ngModel)]="form.propietarioId" required>
+                <option [ngValue]="null">Seleccionar cliente</option>
+                <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombres }} {{ cliente.apellidos }} - {{ cliente.email }}</option>
+              </select>
+            </label>
+            <label class="grid gap-2">
+              <span class="form-label">Estado clinico</span>
+              <select class="campo" name="estado" [(ngModel)]="form.estado">
+                <option>ACTIVA</option>
+                <option>INTERNADA</option>
+                <option>EN_CONTROL</option>
+                <option>INACTIVA</option>
+              </select>
+            </label>
+            <label class="grid gap-2" *ngIf="!editandoId">
+              <span class="form-label">Foto del paciente</span>
+              <input class="campo" type="file" accept="image/*" (change)="fotoFormulario($event)">
+            </label>
+            <button class="boton-primario w-full" type="submit">
+              {{ editandoId ? 'Guardar cambios' : 'Registrar mascota' }}
+            </button>
+            <p class="text-sm font-bold text-emerald-700 dark:text-emerald-300" *ngIf="mensajeFormulario">{{ mensajeFormulario }}</p>
+          </form>
+        </aside>
+      </div>
+    </section>

@@ -1,0 +1,80 @@
+    <section @fadeInUp class="page-shell">
+      <div class="page-header p-4 sm:p-5">
+        <div>
+          <p class="page-eyebrow">Resumen general</p>
+          <h1 class="text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">Dashboard VetSphere</h1>
+          <p class="page-subtitle">Operacion diaria, pacientes, farmacia, facturacion y alertas clinicas en tiempo real.</p>
+        </div>
+        <a class="boton-primario px-4 py-2 text-sm" href="https://wa.me/593989188046?text=Hola%20VetSphere%2C%20necesito%20coordinar%20una%20consulta%20veterinaria." target="_blank">
+          <app-icono name="whatsapp" [size]="18"></app-icono>
+          WhatsApp
+        </a>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-4">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Rocky - control postoperatorio pendiente</div>
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">Medicamento por agotar en farmacia</div>
+        <div class="rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-xs font-bold text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-200">4 citas confirmadas para manana</div>
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">Facturacion actualizada</div>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <article class="stat-card" *ngFor="let tarjeta of tarjetas">
+          <p class="stat-label">{{ tarjeta.titulo }}</p>
+          <p class="stat-value">{{ tarjeta.valor }}</p>
+          <p class="stat-note">{{ tarjeta.detalle }}</p>
+        </article>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <article class="panel flex items-center gap-3 p-4" *ngFor="let servicio of servicios">
+          <div class="grid h-10 w-10 place-items-center rounded-lg bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
+            <app-icono [name]="servicio.icono" [size]="19"></app-icono>
+          </div>
+          <div>
+            <p class="text-xs font-black uppercase text-slate-500 dark:text-slate-400">{{ servicio.nombre }}</p>
+            <p class="text-2xl font-black text-slate-950 dark:text-white">{{ servicio.total }}</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid gap-6 xl:grid-cols-[1.25fr_.75fr]">
+        <article class="panel p-5">
+          <div class="flex items-center justify-between">
+            <h2 class="section-title">Citas - ultimos 7 dias</h2>
+            <button class="action-link">Ver todas</button>
+          </div>
+          <div class="mt-4 flex h-40 items-end gap-4 rounded-lg border border-slate-200 bg-slate-50 px-4 pt-4 dark:border-slate-800 dark:bg-slate-950/40">
+            <div class="barra h-[35%]"></div><div class="barra h-[55%]"></div><div class="barra h-[40%]"></div><div class="barra h-[75%]"></div><div class="barra h-[60%]"></div><div class="barra h-[90%]"></div><div class="barra h-[48%]"></div>
+          </div>
+        </article>
+        <article class="panel p-5">
+          <h2 class="section-title">Pacientes por especie</h2>
+          <div class="mx-auto mt-4 h-36 w-36 rounded-full ring-8 ring-slate-50 dark:ring-slate-950/50" style="background: conic-gradient(#0891b2 0 72%, #7c3aed 72% 100%);"></div>
+          <div class="mt-4 flex justify-center gap-5 text-xs font-black"><span class="text-cyan-700 dark:text-cyan-300">Perro</span><span class="text-violet-700 dark:text-violet-300">Gato</span></div>
+        </article>
+      </div>
+
+      <div class="grid gap-6 xl:grid-cols-2">
+        <article class="panel p-5">
+          <h2 class="section-title">Cirugias recientes</h2>
+          <div class="mt-4 space-y-3">
+            <div class="soft-panel flex items-center justify-between">
+              <span class="font-bold text-slate-700 dark:text-slate-200">Esterilizacion - Luna</span><b class="text-emerald-700 dark:text-emerald-300">Completada</b>
+            </div>
+            <div class="soft-panel flex items-center justify-between">
+              <span class="font-bold text-slate-700 dark:text-slate-200">Extraccion dental - Max</span><b class="text-cyan-700 dark:text-cyan-300">Programada</b>
+            </div>
+          </div>
+        </article>
+        <article class="panel p-5">
+          <h2 class="section-title">Stock critico via SOAP/CXF</h2>
+          <div class="mt-4 space-y-3">
+            <div class="flex items-center justify-between rounded-lg border border-rose-100 bg-rose-50 p-3 dark:border-rose-900/50 dark:bg-rose-950/30" *ngFor="let producto of resumen?.stockCritico">
+              <div><p class="font-black text-slate-950 dark:text-white">{{ producto.nombre }}</p><p class="text-xs text-slate-500 dark:text-slate-400">{{ producto.codigo }}</p></div>
+              <b class="text-rose-700 dark:text-rose-300">{{ producto.stock }}/{{ producto.stockCritico }}</b>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
