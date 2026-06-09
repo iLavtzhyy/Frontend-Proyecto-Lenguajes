@@ -1,33 +1,181 @@
-    <section class="page-shell" @fadeInUp>
-      <div class="page-header">
+<section class="facturacion-page" @fadeInUp>
+  <div class="facturacion-hero">
+    <div>
+      <p class="facturacion-eyebrow">Control financiero</p>
+      <h1>Facturacion</h1>
+      <p>Gasto por cliente, servicios clinicos, farmacia, comprobantes y estado de pago.</p>
+    </div>
+    <button class="boton-primario" type="button">
+      <app-icono name="receipt" [size]="18"></app-icono>
+      Nueva factura
+    </button>
+  </div>
+
+  <div class="facturacion-stats">
+    <article class="factura-stat factura-stat-total">
+      <span>Total facturado</span>
+      <strong>${{ total | number:'1.2-2' }}</strong>
+      <small>Historico de ventas</small>
+    </article>
+    <article class="factura-stat">
+      <span>Facturas</span>
+      <strong>{{ facturas.length }}</strong>
+      <small>Emitidas</small>
+    </article>
+    <article class="factura-stat factura-stat-pendiente">
+      <span>Pendientes</span>
+      <strong>{{ pendientes }}</strong>
+      <small>Por cobrar</small>
+    </article>
+    <article class="factura-stat factura-stat-pagada">
+      <span>Pagadas</span>
+      <strong>{{ pagadas }}</strong>
+      <small>Cerradas</small>
+    </article>
+  </div>
+
+  <div class="facturacion-grid">
+    <section class="facturas-panel">
+      <div class="facturas-panel-header">
         <div>
-          <p class="page-eyebrow">Control financiero</p>
-          <h1 class="page-title">Facturacion</h1>
-          <p class="page-subtitle">Gasto por cliente, servicios clinicos, farmacia y estado de pago.</p>
+          <p class="facturacion-eyebrow">Comprobantes</p>
+          <h2>Listado de facturas</h2>
         </div>
-        <button class="boton-primario">Nueva factura</button>
+        <span>{{ facturas.length }} registros</span>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-4">
-        <article class="stat-card"><p class="stat-label">Total facturado</p><p class="stat-value">\${{ total | number:'1.2-2' }}</p><p class="stat-note">Historico</p></article>
-        <article class="stat-card"><p class="stat-label">Facturas</p><p class="stat-value">{{ facturas.length }}</p><p class="stat-note">Emitidas</p></article>
-        <article class="stat-card"><p class="stat-label">Pendientes</p><p class="stat-value text-amber-700 dark:text-amber-300">{{ pendientes }}</p><p class="stat-note">Por cobrar</p></article>
-        <article class="stat-card"><p class="stat-label">Pagadas</p><p class="stat-value text-emerald-700 dark:text-emerald-300">{{ pagadas }}</p><p class="stat-note">Cerradas</p></article>
-      </div>
-
-      <div class="table-wrap overflow-x-auto">
-        <table class="data-table">
-          <thead><tr><th>Factura</th><th>Cliente</th><th>Mascota</th><th>Concepto</th><th>Total</th><th>Estado</th></tr></thead>
+      <div class="facturas-table-wrap">
+        <table class="facturas-table">
+          <thead>
+            <tr>
+              <th>Factura</th>
+              <th>Cliente</th>
+              <th>Mascota</th>
+              <th>Concepto</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr *ngFor="let f of facturas">
-              <td class="font-black text-slate-950 dark:text-white">{{ f.numero }}</td>
+            <tr *ngFor="let f of facturas" [class.fila-seleccionada]="facturaSeleccionada?.id === f.id">
+              <td>
+                <button class="factura-numero" type="button" (click)="seleccionar(f)">
+                  {{ f.numero }}
+                </button>
+                <small>{{ f.fecha | date:'dd/MM/yyyy' }}</small>
+              </td>
               <td>{{ f.cliente }}</td>
               <td>{{ f.mascota }}</td>
               <td>{{ f.concepto }}</td>
-              <td class="font-black text-emerald-700 dark:text-emerald-300">\${{ f.total }}</td>
-              <td><span class="badge" [ngClass]="f.estadoPago === 'Pagado' ? 'badge-ok' : 'badge-warn'">{{ f.estadoPago }}</span></td>
+              <td class="factura-total">${{ f.total | number:'1.2-2' }}</td>
+              <td><span class="badge" [ngClass]="estadoClase(f)">{{ f.estadoPago }}</span></td>
+              <td>
+                <div class="acciones-factura">
+                  <button class="accion-boton" type="button" title="Ver comprobante" (click)="seleccionar(f)">
+                    <app-icono name="eye" [size]="16"></app-icono>
+                  </button>
+                  <button class="accion-boton accion-descargar" type="button" title="Descargar comprobante" (click)="descargarComprobante(f)">
+                    <app-icono name="download" [size]="16"></app-icono>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
+
+    <aside class="resumen-panel">
+      <p class="facturacion-eyebrow">Vista rapida</p>
+      <h2>{{ facturaSeleccionada ? 'Comprobante seleccionado' : 'Selecciona una factura' }}</h2>
+      <p class="resumen-texto" *ngIf="!facturaSeleccionada">
+        Usa el icono de vista para revisar el comprobante antes de imprimirlo o descargarlo.
+      </p>
+
+      <div class="mini-comprobante" *ngIf="facturaSeleccionada as factura">
+        <div class="mini-comprobante-top">
+          <span>VS</span>
+          <div>
+            <strong>{{ factura.numero }}</strong>
+            <small>{{ factura.estadoPago }}</small>
+          </div>
+        </div>
+        <dl>
+          <div><dt>Cliente</dt><dd>{{ factura.cliente }}</dd></div>
+          <div><dt>Mascota</dt><dd>{{ factura.mascota }}</dd></div>
+          <div><dt>Concepto</dt><dd>{{ factura.concepto }}</dd></div>
+          <div><dt>Total</dt><dd>${{ factura.total | number:'1.2-2' }}</dd></div>
+        </dl>
+        <div class="mini-actions">
+          <button class="boton-secundario" type="button" (click)="imprimirComprobante(factura)">
+            <app-icono name="printer" [size]="16"></app-icono>
+            Imprimir
+          </button>
+          <button class="boton-primario" type="button" (click)="descargarComprobante(factura)">
+            <app-icono name="download" [size]="16"></app-icono>
+            Descargar
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal-comprobante" *ngIf="facturaSeleccionada as factura" (click)="cerrarVistaPrevia()">
+    <section class="comprobante-card" (click)="$event.stopPropagation()">
+      <header class="comprobante-header">
+        <div class="comprobante-brand">
+          <span>VS</span>
+          <div>
+            <h2>VetSphere</h2>
+            <p>Clinica veterinaria integral</p>
+          </div>
+        </div>
+        <button class="boton-icono" type="button" aria-label="Cerrar comprobante" (click)="cerrarVistaPrevia()">
+          <app-icono name="x" [size]="18"></app-icono>
+        </button>
+      </header>
+
+      <div class="comprobante-body">
+        <div class="comprobante-title">
+          <div>
+            <p>Comprobante de pago</p>
+            <h3>{{ factura.numero }}</h3>
+          </div>
+          <span [ngClass]="factura.estadoPago === 'Pagado' ? 'estado-pagado' : 'estado-pendiente'">{{ factura.estadoPago }}</span>
+        </div>
+
+        <div class="comprobante-info">
+          <article><span>Cliente</span><strong>{{ factura.cliente }}</strong></article>
+          <article><span>Fecha</span><strong>{{ factura.fecha | date:'dd/MM/yyyy' }}</strong></article>
+          <article><span>Mascota</span><strong>{{ factura.mascota }}</strong></article>
+          <article><span>Atencion</span><strong>{{ factura.concepto }}</strong></article>
+        </div>
+
+        <div class="comprobante-linea">
+          <span>Servicio veterinario</span>
+          <strong>${{ factura.total | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="comprobante-total">
+          <span>Total pagado</span>
+          <strong>${{ factura.total | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <footer class="comprobante-footer">
+        <p>Gracias por confiar en VetSphere. Este comprobante respalda el servicio registrado en el historial clinico.</p>
+        <div>
+          <button class="boton-secundario" type="button" (click)="imprimirComprobante(factura)">
+            <app-icono name="printer" [size]="16"></app-icono>
+            Imprimir
+          </button>
+          <button class="boton-primario" type="button" (click)="descargarComprobante(factura)">
+            <app-icono name="download" [size]="16"></app-icono>
+            Descargar comprobante
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+</section>

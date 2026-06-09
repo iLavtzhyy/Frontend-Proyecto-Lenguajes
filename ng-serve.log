@@ -46,3 +46,75 @@ Build at: 2026-06-09T14:30:24.956Z - Hash: 8e40bf81db253196 - Time: 775ms
 Build at: 2026-06-09T14:32:14.397Z - Hash: 8e40bf81db253196 - Time: 487ms
 
 √ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size
+main.js             | main    |  3.54 MB | 
+runtime.js          | runtime |  6.47 kB | 
+
+2 unchanged chunks
+
+Build at: 2026-06-09T14:39:00.092Z - Hash: ec93fd1aedbca3b7 - Time: 1025ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size
+main.js             | main    |  3.55 MB | 
+runtime.js          | runtime |  6.47 kB | 
+
+2 unchanged chunks
+
+Build at: 2026-06-09T14:39:00.649Z - Hash: b95226934acda4f5 - Time: 525ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size
+main.js             | main    |  3.54 MB | 
+runtime.js          | runtime |  6.47 kB | 
+
+2 unchanged chunks
+
+Build at: 2026-06-09T14:39:50.349Z - Hash: 4c554409b83cb69d - Time: 334ms
+
+Error: src/app/components/facturacion/facturacion.ts:13:16 - error NG2008: Could not find template file './facturacion.html'.
+
+13   templateUrl: './facturacion.html',
+                  ~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+× Failed to compile.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size
+main.js             | main    |  3.57 MB | 
+runtime.js          | runtime |  6.47 kB | 
+
+2 unchanged chunks
+
+Build at: 2026-06-09T14:39:50.911Z - Hash: 57552289e63d800e - Time: 506ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+Initial chunk files | Names   | Raw size
+main.js             | main    |  3.59 MB | 
+runtime.js          | runtime |  6.47 kB | 
+
+2 unchanged chunks
+
+Build at: 2026-06-09T14:41:16.348Z - Hash: 0d150269d5e74f3b - Time: 699ms
+
+√ Compiled successfully.
+√ Browser application bundle generation complete.
+
+
+
+4 unchanged chunks
+
+Build at: 2026-06-09T14:41:16.738Z - Hash: 0d150269d5e74f3b - Time: 348ms
+
+√ Compiled successfully.
