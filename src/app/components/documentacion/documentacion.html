@@ -1,0 +1,50 @@
+<section class="documentacion-shell" @fadeInUp>
+  <header class="documentacion-hero">
+    <div>
+      <p class="page-eyebrow">Arquitectura VetSphere</p>
+      <h1>Documentacion tecnica para exposicion</h1>
+      <p>Resumen visual de seguridad, SOAP/CXF, roles, verificacion por correo y reportes del sistema de clinica veterinaria.</p>
+    </div>
+    <div class="hero-status">
+      <app-icono name="shield" [size]="24"></app-icono>
+      Backend protegido
+    </div>
+  </header>
+
+  <div class="bloques-grid">
+    <article class="bloque" *ngFor="let bloque of bloques">
+      <div class="bloque-icono">
+        <app-icono [name]="bloque.icono" [size]="24"></app-icono>
+      </div>
+      <span>{{ bloque.etiqueta }}</span>
+      <h2>{{ bloque.titulo }}</h2>
+      <p>{{ bloque.texto }}</p>
+      <ul>
+        <li *ngFor="let item of bloque.items">{{ item }}</li>
+      </ul>
+    </article>
+  </div>
+
+  <section class="flujo-panel">
+    <div>
+      <p class="page-eyebrow">Flujo seguro</p>
+      <h2>Del registro al acceso</h2>
+      <p>El correo no se expone en la URL; el frontend conserva la verificacion de forma temporal en sessionStorage y el backend valida codigo, expiracion y estado del usuario.</p>
+    </div>
+    <ol>
+      <li><strong>Registro</strong><span>Usuario solicita cuenta con rol CLIENTE, VETERINARIO o RECEPCIONISTA.</span></li>
+      <li><strong>Codigo</strong><span>Spring Mail envia un codigo temporal al Gmail configurado.</span></li>
+      <li><strong>Aprobacion</strong><span>Admin revisa y aprueba personal clinico cuando corresponde.</span></li>
+      <li><strong>JWT</strong><span>Login devuelve token para proteger llamadas REST.</span></li>
+    </ol>
+  </section>
+
+  <section class="xml-panel">
+    <div>
+      <p class="page-eyebrow">Prueba XML</p>
+      <h2>SOAP protegido para farmacia</h2>
+      <p>Este ejemplo se usa para explicar como cargar o actualizar inventario desde SOAP, sin dejar abierto XML inseguro.</p>
+    </div>
+    <pre><code>{{ xmlEjemplo }}</code></pre>
+  </section>
+</section>

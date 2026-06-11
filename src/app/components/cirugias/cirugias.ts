@@ -69,6 +69,7 @@ export class CirugiasComponent implements OnInit {
     peticion.subscribe(() => {
       this.mensaje = 'Cirugia guardada correctamente.';
       this.cargar();
+      this.cerrar();
     });
   }
 

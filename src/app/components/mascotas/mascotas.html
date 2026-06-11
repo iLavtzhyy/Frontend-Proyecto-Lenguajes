@@ -6,15 +6,19 @@
           <p class="page-subtitle">Gestiona pacientes, propietarios, ficha clinica, archivos medicos y linea de tiempo de cada mascota.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button class="boton-secundario" type="button" (click)="descargarExcel()">
+          <button class="boton-secundario" type="button" (click)="descargarExcel()" *ngIf="puedeGestionarClientes">
             <app-icono name="file" [size]="18"></app-icono>
             Excel financiero
           </button>
-          <button class="boton-primario" type="button" (click)="nuevo()">
+          <button class="boton-primario" type="button" (click)="nuevo()" *ngIf="puedeGestionarClientes">
             <app-icono name="heart" [size]="18"></app-icono>
             Nueva mascota
           </button>
         </div>
+      </div>
+
+      <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200" *ngIf="mensajeFormulario">
+        {{ mensajeFormulario }}
       </div>
 
       <div class="grid gap-6 xl:grid-cols-[360px_1fr]">
@@ -24,7 +28,7 @@
               <h2 class="section-title">Pacientes</h2>
               <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ mascotas.length }} mascotas registradas</p>
             </div>
-            <button class="boton-icono" type="button" (click)="nuevo()" aria-label="Nueva mascota">
+            <button class="boton-icono" type="button" (click)="nuevo()" aria-label="Nueva mascota" *ngIf="puedeGestionarClientes">
               <app-icono name="heart" [size]="20"></app-icono>
             </button>
           </div>
@@ -45,7 +49,7 @@
           </div>
         </aside>
 
-        <div class="grid gap-6 2xl:grid-cols-[1fr_420px]">
+        <div class="mascota-detalle-wrap">
           <article class="panel overflow-hidden" *ngIf="seleccionada as mascota">
             <div class="relative min-h-72 overflow-hidden">
               <img class="absolute inset-0 h-full w-full object-cover" [src]="fotoMascota(mascota)" [alt]="mascota.nombre">
@@ -63,17 +67,25 @@
               </div>
             </div>
 
-            <div class="grid gap-6 p-5 lg:grid-cols-[1fr_300px]">
+            <div class="detalle-grid">
               <section>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 class="section-title">Linea de tiempo clinica</h3>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Consultas, vacunas, procedimientos y cirugias asociadas.</p>
                   </div>
-                  <div class="flex flex-wrap gap-2">
-                    <button class="boton-secundario" type="button" (click)="editar(mascota)">Editar</button>
-                    <button class="boton-secundario" type="button" (click)="descargarPdf(mascota.id)">PDF</button>
-                    <button class="boton-secundario" type="button" (click)="eliminar(mascota)">Eliminar</button>
+                  <div class="acciones-paciente">
+                    <button class="boton-secundario" type="button" (click)="editar(mascota)">
+                      <app-icono name="file" [size]="16"></app-icono>
+                      Editar
+                    </button>
+                    <button class="boton-secundario" type="button" (click)="descargarPdf(mascota.id)">
+                      <app-icono name="download" [size]="16"></app-icono>
+                      PDF
+                    </button>
+                    <button class="boton-secundario danger-soft" type="button" (click)="eliminar(mascota)">
+                      Eliminar
+                    </button>
                   </div>
                 </div>
 
@@ -90,8 +102,8 @@
                 </ng-template>
               </section>
 
-              <aside class="space-y-4">
-                <div class="soft-panel">
+              <aside class="side-clinico">
+                <div class="soft-panel ficha-card">
                   <p class="form-label">Ficha rapida</p>
                   <dl class="mt-4 space-y-3 text-sm">
                     <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">Nacimiento</dt><dd class="font-black text-slate-950 dark:text-white">{{ mascota.fechaNacimiento || 'Sin dato' }}</dd></div>
@@ -100,12 +112,51 @@
                   </dl>
                 </div>
 
-                <div class="rounded-lg border-2 border-dashed border-cyan-300 bg-cyan-50 p-5 text-center dark:border-cyan-800 dark:bg-cyan-950/30"
+                <div class="upload-card"
                      (drop)="soltar($event)" (dragover)="$event.preventDefault()">
-                  <p class="text-lg font-black text-slate-950 dark:text-white">Subir archivo medico</p>
-                  <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Arrastra radiografias, fotos o resultados.</p>
-                  <input class="mt-4 w-full text-sm text-slate-600 dark:text-slate-300" type="file" (change)="seleccionar($event)">
-                  <p class="mt-4 text-xs font-bold text-cyan-800 dark:text-cyan-300" *ngIf="mensajeArchivo">{{ mensajeArchivo }}</p>
+                  <div class="upload-icon">
+                    <app-icono name="file" [size]="24"></app-icono>
+                  </div>
+                  <p>Subir archivo medico</p>
+                  <span>Radiografias, fotos, resultados o documentos PDF vinculados a esta mascota.</span>
+                  <label class="upload-button">
+                    Seleccionar archivo
+                    <input type="file" (change)="seleccionar($event)">
+                  </label>
+                  <small *ngIf="mensajeArchivo">{{ mensajeArchivo }}</small>
+                </div>
+
+                <div class="soft-panel archivos-panel">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="form-label">Archivos clinicos</p>
+                      <h4 class="mt-1 text-lg font-black text-slate-950 dark:text-white">{{ archivosClinicos(mascota).length }} adjuntos</h4>
+                    </div>
+                    <app-icono name="file" [size]="22"></app-icono>
+                  </div>
+                  <div class="archivos-lista" *ngIf="archivosClinicos(mascota).length; else sinArchivos">
+                    <div class="archivo-item" *ngFor="let archivo of archivosClinicos(mascota)">
+                      <div class="archivo-tipo">{{ iconoArchivo(archivo.archivosUrl) }}</div>
+                      <span>
+                        <b>{{ nombreArchivo(archivo.archivosUrl) }}</b>
+                        <small>{{ archivo.fecha | date:'dd/MM/yyyy HH:mm' }}</small>
+                        <small>{{ archivo.motivo }}</small>
+                      </span>
+                      <div class="archivo-acciones">
+                        <a [href]="urlArchivo(archivo.archivosUrl)" target="_blank" rel="noopener" aria-label="Ver archivo">
+                          <app-icono name="eye" [size]="17"></app-icono>
+                        </a>
+                        <button type="button"
+                                (click)="eliminarArchivo(mascota, archivo.id, nombreArchivo(archivo.archivosUrl))"
+                                aria-label="Eliminar archivo">
+                          <app-icono name="x" [size]="17"></app-icono>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #sinArchivos>
+                    <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">Aun no hay radiografias, resultados o documentos adjuntos.</p>
+                  </ng-template>
                 </div>
               </aside>
             </div>

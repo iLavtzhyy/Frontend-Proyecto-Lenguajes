@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { Factura } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
@@ -8,7 +9,7 @@ import { IconoComponent } from '../../shared/components/icono/icono';
 @Component({
   selector: 'app-facturacion',
   standalone: true,
-  imports: [CommonModule, IconoComponent],
+  imports: [CommonModule, FormsModule, IconoComponent],
   animations: [fadeInUp],
   templateUrl: './facturacion.html',
   styleUrl: './facturacion.css'
@@ -16,6 +17,9 @@ import { IconoComponent } from '../../shared/components/icono/icono';
 export class FacturacionComponent implements OnInit {
   facturas: Factura[] = [];
   facturaSeleccionada?: Factura;
+  facturaPago?: Factura;
+  estadoPago = 'Pendiente';
+  mensajePago = '';
   fechaEmision = new Date();
 
   constructor(private api: ApiService) {}
@@ -53,6 +57,27 @@ export class FacturacionComponent implements OnInit {
 
   estadoClase(factura: Factura) {
     return factura.estadoPago === 'Pagado' ? 'badge-ok' : 'badge-warn';
+  }
+
+  abrirPago(factura: Factura) {
+    this.facturaPago = factura;
+    this.estadoPago = factura.estadoPago || 'Pendiente';
+    this.mensajePago = '';
+  }
+
+  cerrarPago() {
+    this.facturaPago = undefined;
+  }
+
+  guardarPago() {
+    if (!this.facturaPago) return;
+    this.api.actualizarEstadoFactura(this.facturaPago.id, this.estadoPago).subscribe(r => {
+      const actualizada = { ...this.facturaPago!, estadoPago: r.data.estadoPago || this.estadoPago };
+      this.facturas = this.facturas.map(f => f.id === actualizada.id ? actualizada : f);
+      if (this.facturaSeleccionada?.id === actualizada.id) this.facturaSeleccionada = actualizada;
+      this.mensajePago = 'Estado de pago actualizado.';
+      this.cerrarPago();
+    });
   }
 
   private crearComprobanteHtml(factura: Factura, imprimir = false) {

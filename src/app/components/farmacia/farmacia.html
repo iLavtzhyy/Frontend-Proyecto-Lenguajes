@@ -14,6 +14,10 @@
         </div>
       </div>
 
+      <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200" *ngIf="mensaje">
+        {{ mensaje }}
+      </div>
+
       <div class="grid gap-4 md:grid-cols-4">
         <article class="stat-card"><p class="stat-label">Productos</p><p class="stat-value">{{ productos.length }}</p><p class="stat-note">Activos</p></article>
         <article class="stat-card"><p class="stat-label">Stock critico</p><p class="stat-value text-rose-700 dark:text-rose-300">{{ criticos }}</p><p class="stat-note">Alertas</p></article>
@@ -21,31 +25,46 @@
         <article class="stat-card"><p class="stat-label">Stock total</p><p class="stat-value">{{ stockTotal }}</p><p class="stat-note">Unidades</p></article>
       </div>
 
-      <div class="panel p-4">
-        <input class="campo w-full" placeholder="Buscar producto, codigo o categoria..." [(ngModel)]="busqueda">
+      <div class="panel filtros-farmacia">
+        <div class="grid gap-3 md:grid-cols-[260px_1fr]">
+          <select class="campo" [(ngModel)]="categoriaActiva" name="categoriaActiva">
+            <option *ngFor="let categoria of categorias">{{ categoria }}</option>
+          </select>
+          <input class="campo w-full" placeholder="Buscar producto, codigo o categoria..." [(ngModel)]="busqueda">
+        </div>
       </div>
 
-      <div class="table-wrap overflow-x-auto">
-        <table class="data-table">
-          <thead><tr><th>Codigo</th><th>Producto</th><th>Categoria</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let p of filtrados">
-              <td class="font-black text-slate-950 dark:text-white">{{ p.codigo }}</td>
-              <td>{{ p.nombre }}</td>
-              <td>{{ p.categoria }}</td>
-              <td class="font-black text-emerald-700 dark:text-emerald-300">\${{ p.precio }}</td>
-              <td><b class="text-slate-950 dark:text-white">{{ p.stock }}</b> / {{ p.stockCritico }}</td>
-              <td><span class="badge" [ngClass]="p.stock <= p.stockCritico ? 'badge-danger' : 'badge-ok'">{{ p.stock <= p.stockCritico ? 'Critico' : 'Activo' }}</span></td>
-              <td>
-                <div class="flex flex-wrap gap-2">
-                  <button class="action-link" type="button" (click)="abrirStock(p)">Stock</button>
-                  <button class="action-link" type="button" (click)="editarProducto(p)">Editar</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section class="categoria-section" *ngFor="let grupo of gruposFiltrados">
+        <header>
+          <div>
+            <p class="page-eyebrow">Categoria</p>
+            <h2>{{ grupo.categoria }}</h2>
+          </div>
+          <span>{{ grupo.productos.length }} productos</span>
+        </header>
+
+        <div class="table-wrap overflow-x-auto">
+          <table class="data-table">
+            <thead><tr><th>Codigo</th><th>Producto</th><th>Categoria</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let p of grupo.productos">
+                <td class="font-black text-slate-950 dark:text-white">{{ p.codigo }}</td>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td class="font-black text-emerald-700 dark:text-emerald-300">\${{ p.precio }}</td>
+                <td><b class="text-slate-950 dark:text-white">{{ p.stock }}</b> / {{ p.stockCritico }}</td>
+                <td><span class="badge" [ngClass]="p.stock <= p.stockCritico ? 'badge-danger' : 'badge-ok'">{{ p.stock <= p.stockCritico ? 'Critico' : 'Activo' }}</span></td>
+                <td>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="action-link" type="button" (click)="abrirStock(p)">Stock</button>
+                    <button class="action-link" type="button" (click)="editarProducto(p)">Editar</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <div class="fixed inset-0 z-50 bg-slate-950/60 p-3 backdrop-blur-sm sm:flex sm:justify-end sm:p-5"
            *ngIf="formularioAbierto"

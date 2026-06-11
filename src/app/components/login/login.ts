@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { IconoComponent } from '../../shared/components/icono/icono';
+import { SesionInactividadService } from '../../core/sesion-inactividad.service';
+import { AutorizacionService } from '../../core/autorizacion.service';
 
 @Component({
   selector: 'app-login',
@@ -24,13 +26,17 @@ export class LoginComponent {
   mensajeRecuperacion = '';
   mensajeRecuperacionOk = false;
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(private api: ApiService, private router: Router, private sesionInactividad: SesionInactividadService, private autorizacion: AutorizacionService) {
+    const mensajeSesion = this.sesionInactividad.consumirMensaje();
+    if (mensajeSesion) this.error = mensajeSesion;
+  }
 
   entrar() {
     this.error = '';
     this.api.login({ email: this.email, password: this.password }).subscribe({
       next: r => {
-        localStorage.setItem('vetsphere_token', r.data.token);
+        this.autorizacion.guardarSesion(r.data);
+        this.sesionInactividad.registrarActividad();
         this.router.navigateByUrl('/dashboard');
       },
       error: () => this.error = 'No se pudo iniciar sesion. Revisa correo, contrasena o backend.'

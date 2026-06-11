@@ -19,6 +19,7 @@ import { CirugiasComponent } from './components/cirugias/cirugias';
 import { LaboratorioComponent } from './components/laboratorio/laboratorio';
 import { HospitalizacionComponent } from './components/hospitalizacion/hospitalizacion';
 import { UsuariosComponent } from './components/usuarios/usuarios';
+import { DocumentacionComponent } from './components/documentacion/documentacion';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', component: HomeComponent },
@@ -31,19 +32,20 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'clientes', component: ClientesComponent },
-      { path: 'consultas', component: ConsultasComponent },
-      { path: 'cirugias', component: CirugiasComponent },
-      { path: 'laboratorio', component: LaboratorioComponent },
-      { path: 'hospitalizacion', component: HospitalizacionComponent },
-      { path: 'mascotas', component: MascotasComponent },
-      { path: 'veterinarios', component: VeterinariosComponent },
-      { path: 'administracion', component: AdministracionComponent },
-      { path: 'recepcion', component: RecepcionComponent },
-      { path: 'farmacia', component: FarmaciaComponent },
-      { path: 'facturacion', component: FacturacionComponent },
-      { path: 'usuarios', component: UsuariosComponent },
-      { path: 'reportes', component: ReportesComponent },
+      { path: 'clientes', component: ClientesComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] } },
+      { path: 'consultas', component: ConsultasComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },
+      { path: 'cirugias', component: CirugiasComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },
+      { path: 'laboratorio', component: LaboratorioComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },
+      { path: 'hospitalizacion', component: HospitalizacionComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },
+      { path: 'mascotas', component: MascotasComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] } },
+      { path: 'veterinarios', component: VeterinariosComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] } },
+      { path: 'administracion', component: AdministracionComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN'] } },
+      { path: 'recepcion', component: RecepcionComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] } },
+      { path: 'farmacia', component: FarmaciaComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] } },
+      { path: 'facturacion', component: FacturacionComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] } },
+      { path: 'usuarios', component: UsuariosComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN'] } },
+      { path: 'documentacion', component: DocumentacionComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN'] } },
+      { path: 'reportes', component: ReportesComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN'] } },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },

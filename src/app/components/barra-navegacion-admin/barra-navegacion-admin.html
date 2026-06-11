@@ -12,10 +12,10 @@
         </div>
 
         <nav class="sidebar-scroll flex-1 space-y-6 overflow-y-auto px-4 py-5 pr-3 text-sm">
-          <div *ngFor="let grupo of grupos">
+          <div *ngFor="let grupo of gruposVisibles; trackBy: trackGrupo">
             <p class="px-3 pb-2 text-[10px] font-black uppercase tracking-wide text-slate-400 dark:text-slate-500">{{ grupo.titulo }}</p>
             <div class="space-y-1">
-              <a *ngFor="let item of grupo.items"
+              <a *ngFor="let item of grupo.items; trackBy: trackItem"
                  class="item"
                  [routerLink]="item.ruta || null"
                  routerLinkActive="activo"
@@ -30,8 +30,8 @@
         <div class="sidebar-session border-t border-slate-100 p-4 dark:border-slate-800">
           <div class="rounded-lg border border-cyan-100 bg-cyan-50 p-4 dark:border-cyan-900/60 dark:bg-cyan-950/30">
             <p class="text-xs font-black uppercase text-cyan-700 dark:text-cyan-300">Sesion activa</p>
-            <p class="mt-1 text-sm font-black text-slate-950 dark:text-white">Admin VetSphere</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Panel clinico y administrativo</p>
+            <p class="mt-1 text-sm font-black text-slate-950 dark:text-white">{{ nombreSesion }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ rolesSesion }}</p>
           </div>
         </div>
       </aside>
@@ -57,7 +57,7 @@
                 <app-icono [name]="theme.oscuro() ? 'sun' : 'moon'" [size]="17"></app-icono>
                 <span class="hidden sm:inline">{{ theme.oscuro() ? 'Tema claro' : 'Tema oscuro' }}</span>
               </button>
-              <button class="boton-secundario px-3 sm:px-4" routerLink="/login">Salir</button>
+              <button class="boton-secundario px-3 sm:px-4" type="button" (click)="salir()">Salir</button>
             </div>
           </div>
         </header>

@@ -63,6 +63,7 @@ export class HospitalizacionComponent implements OnInit {
       this.api.actualizarHospitalizacion(this.editandoId, { ...this.form, alta: this.form.alta || null }).subscribe(() => {
         this.mensaje = 'Hospitalizacion actualizada correctamente.';
         this.cargar();
+        this.cerrar();
       });
       return;
     }
@@ -78,6 +79,7 @@ export class HospitalizacionComponent implements OnInit {
     }).subscribe(() => {
       this.mensaje = 'Ingreso registrado correctamente.';
       this.cargar();
+      this.cerrar();
     });
   }
 

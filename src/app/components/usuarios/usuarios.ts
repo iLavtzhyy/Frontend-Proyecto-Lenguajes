@@ -21,6 +21,7 @@ export class UsuariosComponent implements OnInit {
   formularioAbierto = false;
   mensaje = '';
   rol = 'ROLE_VETERINARIO';
+  rolesDisponibles = ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO', 'ROLE_CLIENTE'];
   form = this.formularioVacio();
 
   constructor(private api: ApiService) {}
@@ -43,11 +44,18 @@ export class UsuariosComponent implements OnInit {
     this.api.crearUsuario({ ...this.form, roles: [this.rol] }).subscribe(() => {
       this.mensaje = 'Usuario creado correctamente.';
       this.cargar();
+      this.cerrar();
     });
   }
 
   aprobar(id: number) {
     this.api.aprobarUsuario(id).subscribe(() => this.cargar());
+  }
+
+  cambiarRol(usuario: Usuario, rol: string) {
+    this.api.actualizarRolesUsuario(usuario.id, [rol]).subscribe(r => {
+      this.usuarios = this.usuarios.map(u => u.id === r.data.id ? r.data : u);
+    });
   }
 
   cerrar() {

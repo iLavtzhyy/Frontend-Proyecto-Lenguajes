@@ -62,6 +62,7 @@ export class LaboratorioComponent implements OnInit {
       this.api.actualizarOrdenLaboratorio(this.editandoId, this.form).subscribe(() => {
         this.mensaje = 'Orden actualizada correctamente.';
         this.cargar();
+        this.cerrar();
       });
       return;
     }
@@ -76,6 +77,7 @@ export class LaboratorioComponent implements OnInit {
     }).subscribe(() => {
       this.mensaje = 'Orden creada correctamente.';
       this.cargar();
+      this.cerrar();
     });
   }
 

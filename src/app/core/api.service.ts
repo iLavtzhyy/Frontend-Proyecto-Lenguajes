@@ -27,6 +27,15 @@ export class ApiService {
   actualizarMascota(id: number, datos: any) {
     return this.http.put<ApiResponse<Mascota>>(`${this.api}/mascotas/${id}`, datos);
   }
+  agregarHistorialMascota(id: number, datos: any, archivo?: File | null) {
+    const formData = new FormData();
+    formData.append('historial', new Blob([JSON.stringify(datos)], { type: 'application/json' }));
+    if (archivo) formData.append('archivo', archivo);
+    return this.http.post<ApiResponse<any>>(`${this.api}/mascotas/${id}/historial`, formData);
+  }
+  eliminarArchivoMascota(mascotaId: number, historialId: number) {
+    return this.http.delete<ApiResponse<void>>(`${this.api}/mascotas/${mascotaId}/historial/${historialId}/archivo`);
+  }
   eliminarMascota(id: number) {
     return this.http.delete<ApiResponse<void>>(`${this.api}/mascotas/${id}`);
   }
@@ -37,6 +46,7 @@ export class ApiService {
   actualizarConsulta(id: number, datos: any) { return this.http.put<ApiResponse<any>>(`${this.api}/consultas/${id}`, datos); }
   eliminarConsulta(id: number) { return this.http.delete<ApiResponse<void>>(`${this.api}/consultas/${id}`); }
   facturas() { return this.http.get<ApiResponse<Factura[]>>(`${this.api}/facturacion`); }
+  actualizarEstadoFactura(id: number, estadoPago: string) { return this.http.put<ApiResponse<any>>(`${this.api}/facturacion/${id}/estado`, { estadoPago }); }
   productosCriticos() { return this.http.get<ApiResponse<Producto[]>>(`${this.api}/farmacia/criticos`); }
   productos() { return this.http.get<ApiResponse<Producto[]>>(`${this.api}/farmacia/inventario`); }
   crearProducto(datos: Producto) { return this.http.post<ApiResponse<Producto>>(`${this.api}/farmacia/inventario`, datos); }
@@ -59,8 +69,12 @@ export class ApiService {
   recepcion() { return this.http.get<ApiResponse<Record<string, number>>>(`${this.api}/recepcion/panel`); }
   usuarios() { return this.http.get<ApiResponse<Usuario[]>>(`${this.api}/admin/usuarios`); }
   crearUsuario(datos: any) { return this.http.post<ApiResponse<Usuario>>(`${this.api}/admin/usuarios`, datos); }
+  actualizarRolesUsuario(id: number, roles: string[]) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/admin/usuarios/${id}/roles`, { roles }); }
   solicitudesPendientes() { return this.http.get<ApiResponse<Usuario[]>>(`${this.api}/admin/usuarios/solicitudes-pendientes`); }
   aprobarUsuario(id: number) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/admin/usuarios/${id}/aprobar`, {}); }
+  citas() { return this.http.get<ApiResponse<any[]>>(`${this.api}/citas`); }
+  crearCita(datos: any) { return this.http.post<ApiResponse<any>>(`${this.api}/citas`, datos); }
+  actualizarVeterinario(id: number, datos: any) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/equipo-veterinario/${id}`, datos); }
 
   subirArchivo(archivo: File) {
     const formData = new FormData();

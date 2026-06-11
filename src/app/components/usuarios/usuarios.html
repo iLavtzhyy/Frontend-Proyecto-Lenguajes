@@ -48,13 +48,18 @@
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Listado general con roles activos y datos de contacto.</p>
         </div>
         <table class="data-table">
-          <thead><tr><th>Nombre</th><th>Email</th><th>Telefono</th><th>Rol</th><th>Especialidad</th></tr></thead>
+          <thead><tr><th>Nombre</th><th>Email</th><th>Telefono</th><th>Rol</th><th>Permiso manual</th><th>Especialidad</th></tr></thead>
           <tbody>
             <tr *ngFor="let u of filtrados">
               <td class="font-black text-slate-950 dark:text-white">{{ u.nombres }} {{ u.apellidos }}</td>
               <td>{{ u.email }}</td>
               <td>{{ u.telefono }}</td>
               <td><span class="badge badge-info">{{ rolPrincipal(u) }}</span></td>
+              <td>
+                <select class="campo py-2" [ngModel]="rolPrincipal(u)" (ngModelChange)="cambiarRol(u, $event)" name="rol-{{u.id}}">
+                  <option *ngFor="let item of rolesDisponibles">{{ item }}</option>
+                </select>
+              </td>
               <td>{{ u.especialidad || 'Sin especialidad' }}</td>
             </tr>
           </tbody>

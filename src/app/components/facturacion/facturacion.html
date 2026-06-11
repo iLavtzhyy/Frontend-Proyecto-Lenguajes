@@ -78,6 +78,9 @@
                   <button class="accion-boton accion-descargar" type="button" title="Descargar comprobante" (click)="descargarComprobante(f)">
                     <app-icono name="download" [size]="16"></app-icono>
                   </button>
+                  <button class="accion-boton" type="button" title="Editar pago" (click)="abrirPago(f)">
+                    <app-icono name="receipt" [size]="16"></app-icono>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -108,6 +111,10 @@
           <div><dt>Total</dt><dd>${{ factura.total | number:'1.2-2' }}</dd></div>
         </dl>
         <div class="mini-actions">
+          <button class="boton-secundario" type="button" (click)="abrirPago(factura)">
+            <app-icono name="receipt" [size]="16"></app-icono>
+            Editar pago
+          </button>
           <button class="boton-secundario" type="button" (click)="imprimirComprobante(factura)">
             <app-icono name="printer" [size]="16"></app-icono>
             Imprimir
@@ -176,6 +183,36 @@
           </button>
         </div>
       </footer>
+    </section>
+  </div>
+
+  <div class="modal-comprobante" *ngIf="facturaPago as factura" (click)="cerrarPago()">
+    <section class="comprobante-card pago-card" (click)="$event.stopPropagation()">
+      <header class="comprobante-header">
+        <div class="comprobante-brand">
+          <span>VS</span>
+          <div>
+            <h2>Editar pago</h2>
+            <p>{{ factura.numero }} - {{ factura.cliente }}</p>
+          </div>
+        </div>
+        <button class="boton-icono" type="button" (click)="cerrarPago()"><app-icono name="x" [size]="18"></app-icono></button>
+      </header>
+      <div class="comprobante-body">
+        <label class="grid gap-2">
+          <span class="form-label">Estado de pago</span>
+          <select class="campo" [(ngModel)]="estadoPago" name="estadoPago">
+            <option>Pagado</option>
+            <option>Pendiente</option>
+            <option>Anulado</option>
+          </select>
+        </label>
+        <div class="comprobante-total">
+          <span>Total factura</span>
+          <strong>${{ factura.total | number:'1.2-2' }}</strong>
+        </div>
+        <button class="boton-primario w-full" type="button" (click)="guardarPago()">Guardar estado</button>
+      </div>
     </section>
   </div>
 </section>

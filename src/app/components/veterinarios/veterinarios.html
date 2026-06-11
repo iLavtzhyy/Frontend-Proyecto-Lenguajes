@@ -22,7 +22,38 @@
             <div class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300">
               {{ vet.email }} - {{ vet.telefono }}
             </div>
+            <button class="boton-secundario mt-4 w-full" type="button" *ngIf="puedeEditar()" (click)="editar(vet)">
+              <app-icono name="file" [size]="16"></app-icono>
+              Editar informacion
+            </button>
           </div>
         </article>
+      </div>
+
+      <div class="fixed inset-0 z-50 bg-slate-950/60 p-3 backdrop-blur-sm sm:flex sm:justify-end sm:p-5"
+           *ngIf="editando" (click)="cerrar()">
+        <aside class="panel h-full w-full max-w-xl overflow-y-auto p-5 shadow-2xl sm:p-6" (click)="$event.stopPropagation()">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="page-eyebrow">Equipo medico</p>
+              <h2 class="section-title">Editar veterinario</h2>
+            </div>
+            <button class="boton-icono" type="button" (click)="cerrar()"><app-icono name="x" [size]="18"></app-icono></button>
+          </div>
+          <form class="mt-5 grid gap-4" (ngSubmit)="guardar()" *ngIf="editando as form">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2"><span class="form-label">Nombres</span><input class="campo" name="nombres" [(ngModel)]="form.nombres"></label>
+              <label class="grid gap-2"><span class="form-label">Apellidos</span><input class="campo" name="apellidos" [(ngModel)]="form.apellidos"></label>
+            </div>
+            <label class="grid gap-2"><span class="form-label">Foto URL</span><input class="campo" name="fotoUrl" [(ngModel)]="form.fotoUrl"></label>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2"><span class="form-label">Telefono</span><input class="campo" name="telefono" [(ngModel)]="form.telefono"></label>
+              <label class="grid gap-2"><span class="form-label">Especialidad</span><input class="campo" name="especialidad" [(ngModel)]="form.especialidad"></label>
+            </div>
+            <label class="grid gap-2"><span class="form-label">Cedula profesional</span><input class="campo" name="cedulaProfesional" [(ngModel)]="form.cedulaProfesional"></label>
+            <label class="grid gap-2"><span class="form-label">Biografia</span><textarea class="campo min-h-28" name="biografia" [(ngModel)]="form.biografia"></textarea></label>
+            <button class="boton-primario w-full" type="submit">Guardar cambios</button>
+          </form>
+        </aside>
       </div>
     </section>

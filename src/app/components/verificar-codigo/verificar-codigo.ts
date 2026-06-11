@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
+import { AutorizacionService } from '../../core/autorizacion.service';
 
 @Component({
   selector: 'app-verificacion',
@@ -17,7 +18,7 @@ export class VerificacionComponent {
   mensaje = '';
   ok = false;
 
-  constructor(private api: ApiService, private router: Router) {
+  constructor(private api: ApiService, private router: Router, private autorizacion: AutorizacionService) {
     if (!this.email) this.router.navigateByUrl('/registro');
   }
 
@@ -31,7 +32,7 @@ export class VerificacionComponent {
     this.mensaje = '';
     this.api.verificar({ email: this.email, codigo: this.codigo }).subscribe({
       next: r => {
-        localStorage.setItem('vetsphere_token', r.data.token);
+        this.autorizacion.guardarSesion(r.data);
         sessionStorage.removeItem('vetsphere_verificacion');
         this.router.navigateByUrl('/dashboard');
       },

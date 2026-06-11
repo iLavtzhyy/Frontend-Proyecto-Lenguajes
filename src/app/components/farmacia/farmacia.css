@@ -1,0 +1,271 @@
+.page-shell {
+  --farma-surface: #ffffff;
+  --farma-soft: #f2fbfd;
+  --farma-line: #dbe8f0;
+  --farma-text: #071426;
+  --farma-muted: #586f87;
+  --farma-primary: #0891b2;
+  --farma-danger: #be123c;
+}
+
+:host-context(.dark) .page-shell {
+  --farma-surface: #101b2b;
+  --farma-soft: #0b1524;
+  --farma-line: #26384d;
+  --farma-text: #f8fafc;
+  --farma-muted: #a6b7c9;
+  --farma-primary: #22d3ee;
+  --farma-danger: #fb7185;
+}
+
+.farmacia-soap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  align-items: stretch;
+  padding: 20px;
+  border: 1px solid var(--farma-line);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(8, 145, 178, .12), transparent 48%),
+    var(--farma-surface);
+  color: var(--farma-text);
+  box-shadow: 0 16px 38px rgba(15, 23, 42, .07);
+}
+
+.farmacia-soap h2 {
+  margin: 6px 0 0;
+  font-size: 1.55rem;
+  line-height: 1.08;
+  font-weight: 950;
+}
+
+.farmacia-soap p:not(.page-eyebrow) {
+  margin-top: 10px;
+  max-width: 780px;
+  color: var(--farma-muted);
+  line-height: 1.65;
+}
+
+.farmacia-soap pre {
+  margin: 0;
+  overflow: auto;
+  padding: 16px;
+  border-radius: 12px;
+  background: #071426;
+  color: #dffbff;
+  font-size: .82rem;
+  line-height: 1.55;
+}
+
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.categoria-card {
+  display: grid;
+  gap: 4px;
+  min-height: 112px;
+  padding: 16px;
+  border: 1px solid var(--farma-line);
+  border-radius: 14px;
+  background: var(--farma-surface);
+  color: var(--farma-text);
+  text-align: left;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .06);
+  cursor: pointer;
+  transition: border-color .2s ease, transform .2s ease, background .2s ease;
+}
+
+.categoria-card:hover,
+.categoria-card.activa {
+  border-color: var(--farma-primary);
+  transform: translateY(-1px);
+  background: var(--farma-soft);
+}
+
+.categoria-card span {
+  color: var(--farma-muted);
+  font-size: .78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.categoria-card b {
+  color: var(--farma-text);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.categoria-card small {
+  color: var(--farma-muted);
+  font-weight: 800;
+}
+
+.filtros-farmacia {
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.categoria-section {
+  display: grid;
+  gap: 14px;
+}
+
+.categoria-section header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.categoria-section h2 {
+  margin: 3px 0 0;
+  color: var(--farma-text);
+  font-size: 1.55rem;
+  font-weight: 950;
+}
+
+.categoria-section header > span {
+  padding: 8px 12px;
+  border: 1px solid var(--farma-line);
+  border-radius: 999px;
+  color: var(--farma-muted);
+  background: var(--farma-surface);
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.productos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.producto-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--farma-line);
+  border-radius: 14px;
+  background: var(--farma-surface);
+  color: var(--farma-text);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, .06);
+}
+
+.producto-card.critico {
+  border-color: rgba(190, 18, 60, .35);
+  background:
+    linear-gradient(135deg, rgba(244, 63, 94, .08), transparent 45%),
+    var(--farma-surface);
+}
+
+.producto-top,
+.producto-actions,
+.stock-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.producto-top > span {
+  color: var(--farma-primary);
+  font-size: .82rem;
+  font-weight: 950;
+}
+
+.producto-card h3 {
+  margin: 0;
+  color: var(--farma-text);
+  font-size: 1.12rem;
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+.producto-card p {
+  margin: -6px 0 0;
+  color: var(--farma-muted);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.stock-line {
+  align-items: stretch;
+}
+
+.stock-line div {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--farma-line);
+  border-radius: 11px;
+  background: var(--farma-soft);
+}
+
+.stock-line small,
+.stock-line strong {
+  display: block;
+}
+
+.stock-line small {
+  color: var(--farma-muted);
+  font-size: .72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.stock-line strong {
+  margin-top: 4px;
+  color: var(--farma-text);
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.stock-bar {
+  overflow: hidden;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--farma-soft);
+}
+
+.stock-bar span {
+  display: block;
+  height: 100%;
+  min-width: 8%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0891b2, #22c55e);
+}
+
+.producto-card.critico .stock-bar span {
+  background: linear-gradient(90deg, #be123c, #f97316);
+}
+
+.producto-actions button {
+  flex: 1;
+  min-height: 40px;
+  border: 1px solid var(--farma-line);
+  border-radius: 10px;
+  color: var(--farma-primary);
+  background: var(--farma-soft);
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.producto-actions button:hover {
+  border-color: var(--farma-primary);
+}
+
+@media (max-width: 900px) {
+  .farmacia-soap {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .producto-actions,
+  .stock-line {
+    flex-direction: column;
+  }
+}

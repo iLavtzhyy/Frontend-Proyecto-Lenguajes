@@ -1,8 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { SesionInactividadService } from './sesion-inactividad.service';
+import { AutorizacionService } from './autorizacion.service';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route) => {
   const router = inject(Router);
-  const token = localStorage.getItem('vetsphere_token');
-  return token ? true : router.createUrlTree(['/login']);
+  const sesionInactividad = inject(SesionInactividadService);
+  const autorizacion = inject(AutorizacionService);
+  if (!sesionInactividad.sesionActiva()) return router.createUrlTree(['/login']);
+  const rolesPermitidos = route.data?.['roles'] as string[] | undefined;
+  return autorizacion.tieneRol(rolesPermitidos) ? true : router.createUrlTree(['/dashboard']);
 };

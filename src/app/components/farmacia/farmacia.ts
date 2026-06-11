@@ -17,6 +17,7 @@ import { IconoComponent } from '../../shared/components/icono/icono';
 export class FarmaciaComponent implements OnInit {
   productos: Producto[] = [];
   busqueda = '';
+  categoriaActiva = 'Todas';
   formularioAbierto = false;
   modoStock = false;
   editandoCodigo?: string;
@@ -31,7 +32,13 @@ export class FarmaciaComponent implements OnInit {
   ngOnInit() { this.cargar(); }
 
   cargar() {
-    this.api.productos().subscribe(r => this.productos = r.data);
+    this.api.productos().subscribe({
+      next: r => this.productos = r.data,
+      error: () => {
+        this.productos = [];
+        this.mensaje = 'No se pudo cargar farmacia. Revisa que el backend este encendido y que tu rol tenga permiso.';
+      }
+    });
   }
 
   nuevoProducto() {
@@ -67,9 +74,13 @@ export class FarmaciaComponent implements OnInit {
       precio: Number(this.form.precio || 0)
     };
     const peticion = this.editandoCodigo ? this.api.actualizarProducto(this.editandoCodigo, datos) : this.api.crearProducto(datos);
-    peticion.subscribe(() => {
-      this.mensaje = 'Producto guardado correctamente.';
-      this.cargar();
+    peticion.subscribe({
+      next: () => {
+        this.mensaje = 'Producto guardado correctamente.';
+        this.cargar();
+        this.cerrarFormulario();
+      },
+      error: () => this.mensaje = 'No se pudo guardar el producto.'
     });
   }
 
@@ -79,10 +90,14 @@ export class FarmaciaComponent implements OnInit {
     const peticion = this.stockExacto !== null && this.stockExacto !== undefined
       ? this.api.actualizarStock(codigo, Number(this.stockExacto))
       : this.api.agregarStock(codigo, Number(this.cantidadMovimiento || 0));
-    peticion.subscribe(r => {
-      this.productoSeleccionado = r.data;
-      this.mensaje = 'Stock actualizado correctamente.';
-      this.cargar();
+    peticion.subscribe({
+      next: r => {
+        this.productoSeleccionado = r.data;
+        this.mensaje = 'Stock actualizado correctamente.';
+        this.cargar();
+        this.cerrarFormulario();
+      },
+      error: () => this.mensaje = 'No se pudo actualizar el stock. Verifica permiso de recepcion/admin.'
     });
   }
 
@@ -98,8 +113,36 @@ export class FarmaciaComponent implements OnInit {
   get criticos() { return this.productos.filter(p => p.stock <= p.stockCritico).length; }
   get stockTotal() { return this.productos.reduce((s, p) => s + Number(p.stock || 0), 0); }
   get valorInventario() { return this.productos.reduce((s, p) => s + Number(p.precio || 0) * Number(p.stock || 0), 0); }
+  get categorias() {
+    return ['Todas', ...Array.from(new Set(this.productos.map(p => p.categoria || 'Sin categoria'))).sort()];
+  }
+  get resumenCategorias() {
+    return this.categorias.filter(c => c !== 'Todas').map(categoria => {
+      const productos = this.productos.filter(p => (p.categoria || 'Sin categoria') === categoria);
+      return {
+        categoria,
+        productos: productos.length,
+        stock: productos.reduce((s, p) => s + Number(p.stock || 0), 0),
+        criticos: productos.filter(p => p.stock <= p.stockCritico).length,
+        valor: productos.reduce((s, p) => s + Number(p.precio || 0) * Number(p.stock || 0), 0)
+      };
+    });
+  }
   get filtrados() {
     const q = this.busqueda.toLowerCase();
-    return this.productos.filter(p => `${p.codigo} ${p.nombre} ${p.categoria}`.toLowerCase().includes(q));
+    return this.productos.filter(p => {
+      const coincideTexto = `${p.codigo} ${p.nombre} ${p.categoria}`.toLowerCase().includes(q);
+      const coincideCategoria = this.categoriaActiva === 'Todas' || (p.categoria || 'Sin categoria') === this.categoriaActiva;
+      return coincideTexto && coincideCategoria;
+    });
+  }
+  get gruposFiltrados() {
+    return this.categorias
+      .filter(categoria => categoria !== 'Todas')
+      .map(categoria => ({
+        categoria,
+        productos: this.filtrados.filter(p => (p.categoria || 'Sin categoria') === categoria)
+      }))
+      .filter(grupo => grupo.productos.length);
   }
 }

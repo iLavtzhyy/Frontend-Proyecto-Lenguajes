@@ -1,8 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ThemeService } from '../../core/theme.service';
 import { IconoComponent } from '../../shared/components/icono/icono';
+import { AutorizacionService } from '../../core/autorizacion.service';
+
+type ItemMenu = {
+  nombre: string;
+  ruta: string;
+  icono: string;
+  roles: string[];
+};
+
+type GrupoMenu = {
+  titulo: string;
+  items: ItemMenu[];
+};
 
 @Component({
   selector: 'app-layout',
@@ -11,36 +24,66 @@ import { IconoComponent } from '../../shared/components/icono/icono';
   templateUrl: './barra-navegacion-admin.html',
   styleUrl: './barra-navegacion-admin.css'
 })
-export class LayoutComponent {
-  constructor(public theme: ThemeService) {}
+export class LayoutComponent implements OnInit {
+  constructor(public theme: ThemeService, public autorizacion: AutorizacionService, private router: Router) {}
 
   menuAbierto = false;
-  grupos = [
+  nombreSesion = 'Usuario VetSphere';
+  rolesSesion = '';
+  gruposVisibles: GrupoMenu[] = [];
+
+  grupos: GrupoMenu[] = [
     { titulo: 'Principal', items: [
-      { nombre: 'Dashboard', ruta: '/dashboard', icono: 'dashboard' },
-      { nombre: 'Reportes', ruta: '/reportes', icono: 'file' }
+      { nombre: 'Dashboard', ruta: '/dashboard', icono: 'dashboard', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] },
+      { nombre: 'Reportes', ruta: '/reportes', icono: 'file', roles: ['ROLE_ADMIN'] }
     ] },
     { titulo: 'Gestion', items: [
-      { nombre: 'Clientes', ruta: '/clientes', icono: 'users' },
-      { nombre: 'Mascotas', ruta: '/mascotas', icono: 'heart' },
-      { nombre: 'Recepcion', ruta: '/recepcion', icono: 'calendar' },
-      { nombre: 'Veterinarios', ruta: '/veterinarios', icono: 'stethoscope' }
+      { nombre: 'Clientes', ruta: '/clientes', icono: 'users', roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+      { nombre: 'Mascotas', ruta: '/mascotas', icono: 'heart', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] },
+      { nombre: 'Recepcion', ruta: '/recepcion', icono: 'calendar', roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+      { nombre: 'Veterinarios', ruta: '/veterinarios', icono: 'stethoscope', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] }
     ] },
     { titulo: 'Clinica', items: [
-      { nombre: 'Consultas', ruta: '/consultas', icono: 'stethoscope' },
-      { nombre: 'Cirugias', ruta: '/cirugias', icono: 'surgery' },
-      { nombre: 'Laboratorio', ruta: '/laboratorio', icono: 'lab' },
-      { nombre: 'Farmacia', ruta: '/farmacia', icono: 'pill' },
-      { nombre: 'Hospitalizacion', ruta: '/hospitalizacion', icono: 'shield' }
+      { nombre: 'Consultas', ruta: '/consultas', icono: 'stethoscope', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] },
+      { nombre: 'Cirugias', ruta: '/cirugias', icono: 'surgery', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] },
+      { nombre: 'Laboratorio', ruta: '/laboratorio', icono: 'lab', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] },
+      { nombre: 'Farmacia', ruta: '/farmacia', icono: 'pill', roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+      { nombre: 'Hospitalizacion', ruta: '/hospitalizacion', icono: 'shield', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] }
     ] },
     { titulo: 'Administracion', items: [
-      { nombre: 'Facturacion', ruta: '/facturacion', icono: 'file' },
-      { nombre: 'Admin', ruta: '/administracion', icono: 'shield' },
-      { nombre: 'Usuarios', ruta: '/usuarios', icono: 'users' }
+      { nombre: 'Facturacion', ruta: '/facturacion', icono: 'file', roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+      { nombre: 'Admin', ruta: '/administracion', icono: 'shield', roles: ['ROLE_ADMIN'] },
+      { nombre: 'Usuarios', ruta: '/usuarios', icono: 'users', roles: ['ROLE_ADMIN'] },
+      { nombre: 'Documentacion', ruta: '/documentacion', icono: 'file', roles: ['ROLE_ADMIN'] }
     ] }
   ];
 
+  ngOnInit() {
+    this.actualizarMenuPorRol();
+  }
+
+  actualizarMenuPorRol() {
+    this.nombreSesion = this.autorizacion.nombre();
+    this.rolesSesion = this.autorizacion.roles().join(', ') || 'Sin rol asignado';
+    this.gruposVisibles = this.grupos
+      .map(grupo => ({ ...grupo, items: grupo.items.filter(item => this.autorizacion.tieneRol(item.roles)) }))
+      .filter(grupo => grupo.items.length);
+  }
+
+  trackGrupo(_: number, grupo: GrupoMenu) {
+    return grupo.titulo;
+  }
+
+  trackItem(_: number, item: ItemMenu) {
+    return item.ruta;
+  }
+
   cerrarMenu() {
     this.menuAbierto = false;
+  }
+
+  salir() {
+    this.autorizacion.limpiarSesion();
+    this.router.navigateByUrl('/login');
   }
 }
