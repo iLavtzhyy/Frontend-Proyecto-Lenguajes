@@ -12,19 +12,38 @@ import { ApiService } from '../../core/api.service';
   styleUrl: './registro.css'
 })
 export class RegistroComponent {
+  tipoRegistro: 'cliente' | 'personal' = 'cliente';
   form = { nombres: '', apellidos: '', email: '', telefono: '', password: '', rolSolicitado: 'ROLE_CLIENTE' };
+  codigoAdmin = '';
+  solicitudEnviada = false;
   error = '';
 
   constructor(private api: ApiService, private router: Router) {}
 
+  cambiarTipo(tipo: 'cliente' | 'personal') {
+    this.tipoRegistro = tipo;
+    this.form.rolSolicitado = tipo === 'cliente' ? 'ROLE_CLIENTE' : 'ROLE_VETERINARIO';
+    this.error = '';
+  }
+
   registrar() {
     this.error = '';
-    this.api.registrar(this.form).subscribe({
+    const payload = {
+      ...this.form,
+      codigoAdmin: this.tipoRegistro === 'personal' ? this.codigoAdmin : undefined
+    };
+    this.api.registrar(payload).subscribe({
       next: () => {
-        sessionStorage.setItem('vetsphere_verificacion', btoa(JSON.stringify({ email: this.form.email })));
-        this.router.navigateByUrl('/verificacion');
+        if (this.tipoRegistro === 'cliente') {
+          sessionStorage.setItem('vetsphere_verificacion', btoa(JSON.stringify({ email: this.form.email })));
+          this.router.navigateByUrl('/verificacion');
+        } else {
+          this.solicitudEnviada = true;
+        }
       },
-      error: () => this.error = 'No se pudo registrar. Revisa datos, correo duplicado o backend.'
+      error: (err) => {
+        this.error = err.error?.mensaje || 'No se pudo registrar. Revisa los datos, correo duplicado o el código de administrador.';
+      }
     });
   }
 }

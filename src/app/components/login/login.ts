@@ -37,7 +37,8 @@ export class LoginComponent {
       next: r => {
         this.autorizacion.guardarSesion(r.data);
         this.sesionInactividad.registrarActividad();
-        this.router.navigateByUrl('/dashboard');
+        const rutaInicio = this.autorizacion.tieneRol(['ROLE_CLIENTE']) ? '/mascotas' : '/dashboard';
+        this.router.navigateByUrl(rutaInicio);
       },
       error: () => this.error = 'No se pudo iniciar sesion. Revisa correo, contrasena o backend.'
     });

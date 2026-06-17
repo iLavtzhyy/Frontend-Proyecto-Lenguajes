@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { Mascota, OrdenLaboratorio, Usuario } from '../../core/modelos';
+import { Mascota, OrdenLaboratorio, Usuario, Factura } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
 import { IconoComponent } from '../../shared/components/icono/icono';
 
@@ -18,6 +18,7 @@ export class LaboratorioComponent implements OnInit {
   ordenes: OrdenLaboratorio[] = [];
   mascotas: Mascota[] = [];
   veterinarios: Usuario[] = [];
+  facturas: Factura[] = [];
   busqueda = '';
   formularioAbierto = false;
   editandoId?: number;
@@ -32,7 +33,23 @@ export class LaboratorioComponent implements OnInit {
     this.api.veterinarios().subscribe(r => this.veterinarios = r.data);
   }
 
-  cargar() { this.api.laboratorio().subscribe(r => this.ordenes = r.data); }
+  cargar() { 
+    this.api.laboratorio().subscribe(r => this.ordenes = r.data); 
+    this.api.facturas().subscribe(r => this.facturas = r.data);
+  }
+
+  pagarFactura(facturaId?: number) {
+    if (!facturaId) return;
+    this.api.actualizarEstadoFactura(facturaId, 'Pagado').subscribe(() => {
+      this.cargar();
+    });
+  }
+
+  obtenerEstadoPago(facturaId?: number): string {
+    if (!facturaId) return 'Pendiente';
+    const f = this.facturas.find(x => x.id === facturaId);
+    return f ? f.estadoPago : 'Pendiente';
+  }
 
   nueva() {
     this.editandoId = undefined;
@@ -46,12 +63,13 @@ export class LaboratorioComponent implements OnInit {
   editar(orden: OrdenLaboratorio) {
     this.editandoId = orden.id;
     this.form = {
-      mascotaId: null,
-      veterinarioId: null,
+      mascotaId: orden.mascota?.id || null,
+      veterinarioId: orden.veterinarioSolicitante?.id || null,
       tipoPrueba: orden.tipoPrueba || '',
       resultado: orden.resultado || '',
       estado: orden.estado || 'Pendiente',
-      archivoResultadoUrl: orden.archivoResultadoUrl || ''
+      archivoResultadoUrl: orden.archivoResultadoUrl || '',
+      precio: orden.precio || 35.00
     };
     this.formularioAbierto = true;
     this.mensaje = '';
@@ -59,7 +77,7 @@ export class LaboratorioComponent implements OnInit {
 
   guardar() {
     if (this.editandoId) {
-      this.api.actualizarOrdenLaboratorio(this.editandoId, this.form).subscribe(() => {
+      this.api.actualizarOrdenLaboratorio(this.editandoId, { ...this.form }).subscribe(() => {
         this.mensaje = 'Orden actualizada correctamente.';
         this.cargar();
         this.cerrar();
@@ -72,6 +90,7 @@ export class LaboratorioComponent implements OnInit {
       resultado: this.form.resultado,
       estado: this.form.estado,
       archivoResultadoUrl: this.form.archivoResultadoUrl,
+      precio: this.form.precio,
       mascota: { id: this.form.mascotaId },
       veterinarioSolicitante: { id: this.form.veterinarioId }
     }).subscribe(() => {
@@ -92,7 +111,7 @@ export class LaboratorioComponent implements OnInit {
   }
 
   formularioVacio() {
-    return { mascotaId: null as number | null, veterinarioId: null as number | null, tipoPrueba: 'Hemograma completo', resultado: '', estado: 'Pendiente', archivoResultadoUrl: '' };
+    return { mascotaId: null as number | null, veterinarioId: null as number | null, tipoPrueba: 'Hemograma completo', resultado: '', estado: 'Pendiente', archivoResultadoUrl: '', precio: 35.00 };
   }
 
   contar(estado: string) { return this.ordenes.filter(o => (o.estado || '').toLowerCase().includes(estado.toLowerCase())).length; }

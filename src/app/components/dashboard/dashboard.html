@@ -12,10 +12,18 @@
       </div>
 
       <div class="grid gap-3 lg:grid-cols-4">
-        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Rocky - control postoperatorio pendiente</div>
-        <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">Medicamento por agotar en farmacia</div>
-        <div class="rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-xs font-bold text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-200">4 citas confirmadas para manana</div>
-        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">Facturacion actualizada</div>
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+          {{ resumen?.mascotasInternadas || 0 }} Mascotas en observación médica
+        </div>
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
+          {{ resumen?.stockCritico?.length || 0 }} Medicamentos por agotar en farmacia
+        </div>
+        <div class="rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-xs font-bold text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-200">
+          {{ resumen?.citasHoy || 0 }} Citas agendadas para hoy
+        </div>
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">
+          Facturación en tiempo real activa
+        </div>
       </div>
 
       <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
@@ -42,16 +50,20 @@
         <article class="panel p-5">
           <div class="flex items-center justify-between">
             <h2 class="section-title">Citas - ultimos 7 dias</h2>
-            <button class="action-link">Ver todas</button>
+            <button class="action-link" routerLink="/recepcion">Ver todas</button>
           </div>
           <div class="mt-4 flex h-40 items-end gap-4 rounded-lg border border-slate-200 bg-slate-50 px-4 pt-4 dark:border-slate-800 dark:bg-slate-950/40">
-            <div class="barra h-[35%]"></div><div class="barra h-[55%]"></div><div class="barra h-[40%]"></div><div class="barra h-[75%]"></div><div class="barra h-[60%]"></div><div class="barra h-[90%]"></div><div class="barra h-[48%]"></div>
+            <div *ngFor="let count of resumen?.citasUltimos7Dias" class="barra" [style.height]="getBarHeightPercentage(count)" [title]="count + ' citas'"></div>
           </div>
         </article>
         <article class="panel p-5">
           <h2 class="section-title">Pacientes por especie</h2>
-          <div class="mx-auto mt-4 h-36 w-36 rounded-full ring-8 ring-slate-50 dark:ring-slate-950/50" style="background: conic-gradient(#0891b2 0 72%, #7c3aed 72% 100%);"></div>
-          <div class="mt-4 flex justify-center gap-5 text-xs font-black"><span class="text-cyan-700 dark:text-cyan-300">Perro</span><span class="text-violet-700 dark:text-violet-300">Gato</span></div>
+          <div class="mx-auto mt-4 h-36 w-36 rounded-full ring-8 ring-slate-50 dark:ring-slate-950/50" 
+               [style.background]="'conic-gradient(#0891b2 0% ' + perroPorcentaje + '%, #7c3aed ' + perroPorcentaje + '% 100%)'"></div>
+          <div class="mt-4 flex justify-center gap-5 text-xs font-black">
+            <span class="text-cyan-700 dark:text-cyan-300">Perros ({{ perroPorcentaje }}%)</span>
+            <span class="text-violet-700 dark:text-violet-300">Gatos ({{ gatoPorcentaje }}%)</span>
+          </div>
         </article>
       </div>
 
@@ -59,12 +71,15 @@
         <article class="panel p-5">
           <h2 class="section-title">Cirugias recientes</h2>
           <div class="mt-4 space-y-3">
-            <div class="soft-panel flex items-center justify-between">
-              <span class="font-bold text-slate-700 dark:text-slate-200">Esterilizacion - Luna</span><b class="text-emerald-700 dark:text-emerald-300">Completada</b>
+            <div class="soft-panel flex items-center justify-between" *ngFor="let c of resumen?.cirugiasRecientes">
+              <span class="font-bold text-slate-700 dark:text-slate-200">{{ c.procedimiento }} - {{ c.mascotaNombre }}</span>
+              <b [ngClass]="c.estado === 'FINALIZADA' ? 'text-emerald-700 dark:text-emerald-300' : 'text-cyan-700 dark:text-cyan-300'">
+                {{ c.estado }}
+              </b>
             </div>
-            <div class="soft-panel flex items-center justify-between">
-              <span class="font-bold text-slate-700 dark:text-slate-200">Extraccion dental - Max</span><b class="text-cyan-700 dark:text-cyan-300">Programada</b>
-            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 p-2 text-center" *ngIf="!resumen?.cirugiasRecientes?.length">
+              No hay cirugías registradas recientemente.
+            </p>
           </div>
         </article>
         <article class="panel p-5">
@@ -74,6 +89,9 @@
               <div><p class="font-black text-slate-950 dark:text-white">{{ producto.nombre }}</p><p class="text-xs text-slate-500 dark:text-slate-400">{{ producto.codigo }}</p></div>
               <b class="text-rose-700 dark:text-rose-300">{{ producto.stock }}/{{ producto.stockCritico }}</b>
             </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 p-2 text-center" *ngIf="!resumen?.stockCritico?.length">
+              No hay productos con stock crítico.
+            </p>
           </div>
         </article>
       </div>

@@ -75,7 +75,7 @@
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Consultas, vacunas, procedimientos y cirugias asociadas.</p>
                   </div>
                   <div class="acciones-paciente">
-                    <button class="boton-secundario" type="button" (click)="editar(mascota)">
+                    <button class="boton-secundario" type="button" (click)="editar(mascota)" *ngIf="puedeGestionarClientes">
                       <app-icono name="file" [size]="16"></app-icono>
                       Editar
                     </button>
@@ -83,7 +83,7 @@
                       <app-icono name="download" [size]="16"></app-icono>
                       PDF
                     </button>
-                    <button class="boton-secundario danger-soft" type="button" (click)="eliminar(mascota)">
+                    <button class="boton-secundario danger-soft" type="button" (click)="eliminar(mascota)" *ngIf="puedeGestionarClientes">
                       Eliminar
                     </button>
                   </div>
@@ -112,7 +112,7 @@
                   </dl>
                 </div>
 
-                <div class="upload-card"
+                <div class="upload-card" *ngIf="puedeGestionarClientes"
                      (drop)="soltar($event)" (dragover)="$event.preventDefault()">
                   <div class="upload-icon">
                     <app-icono name="file" [size]="24"></app-icono>
@@ -146,7 +146,7 @@
                         <a [href]="urlArchivo(archivo.archivosUrl)" target="_blank" rel="noopener" aria-label="Ver archivo">
                           <app-icono name="eye" [size]="17"></app-icono>
                         </a>
-                        <button type="button"
+                        <button type="button" *ngIf="puedeGestionarClientes"
                                 (click)="eliminarArchivo(mascota, archivo.id, nombreArchivo(archivo.archivosUrl))"
                                 aria-label="Eliminar archivo">
                           <app-icono name="x" [size]="17"></app-icono>

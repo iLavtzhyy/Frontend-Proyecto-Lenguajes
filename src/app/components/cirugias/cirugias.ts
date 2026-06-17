@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { Cirugia, Mascota, Usuario } from '../../core/modelos';
+import { Cirugia, Mascota, Usuario, Factura } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
 import { IconoComponent } from '../../shared/components/icono/icono';
 
@@ -18,6 +18,7 @@ export class CirugiasComponent implements OnInit {
   cirugias: Cirugia[] = [];
   mascotas: Mascota[] = [];
   veterinarios: Usuario[] = [];
+  facturas: Factura[] = [];
   busqueda = '';
   formularioAbierto = false;
   editandoId?: number;
@@ -34,6 +35,20 @@ export class CirugiasComponent implements OnInit {
 
   cargar() {
     this.api.cirugias().subscribe(r => this.cirugias = r.data);
+    this.api.facturas().subscribe(r => this.facturas = r.data);
+  }
+
+  pagarFactura(facturaId?: number) {
+    if (!facturaId) return;
+    this.api.actualizarEstadoFactura(facturaId, 'Pagado').subscribe(() => {
+      this.cargar();
+    });
+  }
+
+  obtenerEstadoPago(facturaId?: number): string {
+    if (!facturaId) return 'Pendiente';
+    const f = this.facturas.find(x => x.id === facturaId);
+    return f ? f.estadoPago : 'Pendiente';
   }
 
   nueva() {
@@ -57,7 +72,8 @@ export class CirugiasComponent implements OnInit {
       constantesVitales: cirugia.constantesVitales || '',
       estadoPostoperatorio: cirugia.estadoPostoperatorio || '',
       estado: cirugia.estado || 'Pendiente',
-      notas: cirugia.notas || ''
+      notas: cirugia.notas || '',
+      precio: cirugia.precio || 280.00
     };
     this.formularioAbierto = true;
     this.mensaje = '';
@@ -94,7 +110,8 @@ export class CirugiasComponent implements OnInit {
       constantesVitales: 'FC 90 / FR 24 / Temp 38.4',
       estadoPostoperatorio: '',
       estado: 'Pendiente',
-      notas: ''
+      notas: '',
+      precio: 280.00
     };
   }
 

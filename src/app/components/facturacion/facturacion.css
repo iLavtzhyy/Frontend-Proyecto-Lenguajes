@@ -569,3 +569,49 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Estilos para el formulario de nueva factura */
+.nueva-factura-card {
+  max-width: 680px;
+}
+.tab-buttons {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--factura-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+.tab-buttons button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--factura-border);
+  border-radius: 0.5rem;
+  background: var(--factura-card);
+  color: var(--factura-text);
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-buttons button.activo {
+  background: var(--factura-primary) !important;
+  color: #fff !important;
+  border-color: var(--factura-primary) !important;
+}
+.servicio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--factura-border);
+  border-radius: 0.5rem;
+  background: var(--factura-card);
+  transition: background 0.2s ease;
+}
+.servicio-item:hover {
+  background: rgba(8, 145, 178, 0.05);
+}
+.servicio-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--factura-primary);
+  cursor: pointer;
+}

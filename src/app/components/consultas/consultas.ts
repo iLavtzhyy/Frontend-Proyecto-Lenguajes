@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { ConsultaMedica, Mascota, Usuario } from '../../core/modelos';
+import { ConsultaMedica, Mascota, Usuario, Factura } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
 import { IconoComponent } from '../../shared/components/icono/icono';
 
@@ -18,6 +18,7 @@ export class ConsultasComponent implements OnInit {
   consultas: ConsultaMedica[] = [];
   mascotas: Mascota[] = [];
   veterinarios: Usuario[] = [];
+  facturas: Factura[] = [];
   busqueda = '';
   tipos = ['Rutina', 'Emergencia', 'Control', 'Cirugia', 'Vacunacion'];
   formularioAbierto = false;
@@ -35,6 +36,20 @@ export class ConsultasComponent implements OnInit {
 
   cargar() {
     this.api.consultas().subscribe(r => this.consultas = r.data);
+    this.api.facturas().subscribe(r => this.facturas = r.data);
+  }
+
+  pagarFactura(facturaId?: number) {
+    if (!facturaId) return;
+    this.api.actualizarEstadoFactura(facturaId, 'Pagado').subscribe(() => {
+      this.cargar();
+    });
+  }
+
+  obtenerEstadoPago(facturaId?: number): string {
+    if (!facturaId) return 'Pendiente';
+    const f = this.facturas.find(x => x.id === facturaId);
+    return f ? f.estadoPago : 'Pendiente';
   }
 
   nuevaConsulta() {

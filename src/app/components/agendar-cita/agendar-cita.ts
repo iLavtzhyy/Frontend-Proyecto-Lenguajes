@@ -20,6 +20,7 @@ export class RecepcionComponent implements OnInit {
   mascotas: Mascota[] = [];
   veterinarios: Usuario[] = [];
   formularioAbierto = false;
+  editandoId: number | null = null;
   mensaje = '';
   form = this.formularioVacio();
   constructor(private api: ApiService) {}
@@ -50,6 +51,7 @@ export class RecepcionComponent implements OnInit {
   }
 
   nueva() {
+    this.editandoId = null;
     this.form = this.formularioVacio();
     this.form.mascotaId = this.mascotas[0]?.id || null;
     this.form.veterinarioId = this.veterinarios[0]?.id || null;
@@ -57,26 +59,55 @@ export class RecepcionComponent implements OnInit {
     this.mensaje = '';
   }
 
+  editar(cita: any) {
+    this.editandoId = cita.id;
+    this.form = {
+      fechaHora: cita.fechaHora ? cita.fechaHora.slice(0, 16) : '',
+      motivo: cita.motivo || '',
+      estado: cita.estado || 'Programada',
+      observaciones: cita.observaciones || '',
+      mascotaId: cita.mascota?.id || null,
+      veterinarioId: cita.veterinario?.id || null
+    };
+    this.formularioAbierto = true;
+    this.mensaje = '';
+  }
+
   guardar() {
-    this.api.crearCita({
+    const payload = {
       fechaHora: this.form.fechaHora,
       motivo: this.form.motivo,
       estado: this.form.estado,
       observaciones: this.form.observaciones,
       mascota: { id: this.form.mascotaId },
       veterinario: { id: this.form.veterinarioId }
-    }).subscribe({
-      next: () => {
-        this.mensaje = 'Cita creada correctamente.';
-        this.formularioAbierto = false;
-        this.cargar();
-      },
-      error: () => this.mensaje = 'No se pudo crear la cita. Revisa mascota, veterinario y permisos.'
-    });
+    };
+
+    if (this.editandoId) {
+      this.api.actualizarCita(this.editandoId, payload).subscribe({
+        next: () => {
+          this.mensaje = 'Cita actualizada correctamente.';
+          this.formularioAbierto = false;
+          this.editandoId = null;
+          this.cargar();
+        },
+        error: () => this.mensaje = 'No se pudo actualizar la cita. Revisa mascota, veterinario y permisos.'
+      });
+    } else {
+      this.api.crearCita(payload).subscribe({
+        next: () => {
+          this.mensaje = 'Cita creada correctamente.';
+          this.formularioAbierto = false;
+          this.cargar();
+        },
+        error: () => this.mensaje = 'No se pudo crear la cita. Revisa mascota, veterinario y permisos.'
+      });
+    }
   }
 
   cerrar() {
     this.formularioAbierto = false;
+    this.editandoId = null;
   }
 
   formularioVacio() {

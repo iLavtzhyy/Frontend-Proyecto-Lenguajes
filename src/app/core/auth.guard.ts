@@ -9,5 +9,6 @@ export const authGuard: CanActivateFn = (route) => {
   const autorizacion = inject(AutorizacionService);
   if (!sesionInactividad.sesionActiva()) return router.createUrlTree(['/login']);
   const rolesPermitidos = route.data?.['roles'] as string[] | undefined;
-  return autorizacion.tieneRol(rolesPermitidos) ? true : router.createUrlTree(['/dashboard']);
+  const fallback = autorizacion.tieneRol(['ROLE_CLIENTE']) ? '/mascotas' : '/dashboard';
+  return autorizacion.tieneRol(rolesPermitidos) ? true : router.createUrlTree([fallback]);
 };

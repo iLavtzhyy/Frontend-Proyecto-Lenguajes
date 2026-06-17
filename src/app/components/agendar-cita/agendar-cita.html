@@ -40,7 +40,7 @@
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Datos cargados desde SQL Server.</p>
         </div>
         <table class="data-table">
-          <thead><tr><th>Fecha</th><th>Mascota</th><th>Veterinario</th><th>Motivo</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Mascota</th><th>Veterinario</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody>
             <tr *ngFor="let cita of citas">
               <td class="font-black text-slate-950 dark:text-white">{{ cita.fechaHora | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -48,18 +48,21 @@
               <td>{{ cita.veterinario ? (cita.veterinario.nombres + ' ' + cita.veterinario.apellidos) : 'Sin asignar' }}</td>
               <td>{{ cita.motivo }}</td>
               <td><span class="badge badge-info">{{ cita.estado }}</span></td>
+              <td>
+                <button class="action-link" type="button" (click)="editar(cita)">Editar</button>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
-
+ 
       <div class="fixed inset-0 z-50 bg-slate-950/60 p-3 backdrop-blur-sm sm:flex sm:justify-end sm:p-5"
            *ngIf="formularioAbierto" (click)="cerrar()">
         <aside class="panel h-full w-full max-w-xl overflow-y-auto p-5 shadow-2xl sm:p-6" (click)="$event.stopPropagation()">
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="page-eyebrow">Recepcion</p>
-              <h2 class="section-title">Nueva cita</h2>
+              <h2 class="section-title">{{ editandoId ? 'Editar cita' : 'Nueva cita' }}</h2>
               <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Agenda una atencion con datos reales de mascotas y veterinarios.</p>
             </div>
             <button class="boton-icono" type="button" (click)="cerrar()" aria-label="Cerrar"><app-icono name="x" [size]="18"></app-icono></button>
@@ -73,7 +76,7 @@
               <label class="grid gap-2"><span class="form-label">Estado</span><select class="campo" name="estado" [(ngModel)]="form.estado"><option>Programada</option><option>Confirmada</option><option>En espera</option><option>Atendida</option></select></label>
             </div>
             <label class="grid gap-2"><span class="form-label">Observaciones</span><textarea class="campo min-h-24" name="observaciones" [(ngModel)]="form.observaciones"></textarea></label>
-            <button class="boton-primario w-full" type="submit">Guardar cita</button>
+            <button class="boton-primario w-full" type="submit">{{ editandoId ? 'Actualizar cita' : 'Guardar cita' }}</button>
             <p class="text-sm font-bold text-emerald-700 dark:text-emerald-300" *ngIf="mensaje">{{ mensaje }}</p>
           </form>
         </aside>

@@ -34,7 +34,8 @@ export class VerificacionComponent {
       next: r => {
         this.autorizacion.guardarSesion(r.data);
         sessionStorage.removeItem('vetsphere_verificacion');
-        this.router.navigateByUrl('/dashboard');
+        const rutaInicio = this.autorizacion.tieneRol(['ROLE_CLIENTE']) ? '/mascotas' : '/dashboard';
+        this.router.navigateByUrl(rutaInicio);
       },
       error: () => {
         this.ok = false;

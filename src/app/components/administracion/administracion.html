@@ -16,6 +16,19 @@
         </article>
       </div>
 
+      <!-- Banner de Código de Acreditación -->
+      <div class="codigo-box">
+        <div>
+          <h3 class="codigo-titulo">Código de Registro para Personal</h3>
+          <p class="codigo-desc">
+            Entrega este código de 4 dígitos a nuevos Recepcionistas y Veterinarios para que puedan registrarse en el sistema.
+          </p>
+        </div>
+        <div class="codigo-badge">
+          1404
+        </div>
+      </div>
+
       <div class="table-wrap overflow-x-auto">
         <div class="border-b border-slate-200 p-5 dark:border-slate-800">
           <h2 class="section-title">Solicitudes pendientes</h2>
@@ -29,7 +42,12 @@
               <td>{{ u.email }}</td>
               <td>{{ u.telefono }}</td>
               <td><span class="badge badge-info">{{ u.roles?.[0]?.nombre }}</span></td>
-              <td><button class="boton-primario" (click)="aprobar(u.id)">Aprobar</button></td>
+              <td>
+                <div class="flex gap-2">
+                  <button class="boton-primario" (click)="aprobar(u.id)">Aprobar</button>
+                  <button class="boton-peligro" (click)="rechazar(u.id)">Rechazar</button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

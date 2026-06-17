@@ -27,13 +27,34 @@
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <span class="badge" [ngClass]="badgeEstado(cirugia.estado)">{{ cirugia.estado || 'Pendiente' }}</span>
+              <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-900/60 dark:text-slate-300" 
+                    *ngIf="!cirugia.facturaId">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                Sin Facturar
+              </span>
+              <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300" 
+                    *ngIf="cirugia.facturaId && obtenerEstadoPago(cirugia.facturaId) === 'Pagado'">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Pagado
+              </span>
+              <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                    *ngIf="cirugia.facturaId && obtenerEstadoPago(cirugia.facturaId) === 'Pendiente'">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Pendiente
+              </span>
               <h2 class="mt-3 text-xl font-black text-slate-950 dark:text-white">{{ cirugia.procedimiento }}</h2>
-              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ cirugia.fechaProgramada | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ cirugia.fechaProgramada | date:'dd/MM/yyyy HH:mm' }} - <strong class="text-cyan-600 dark:text-cyan-400">${{ (cirugia.precio || 280) | number:'1.2-2' }}</strong></p>
               <p class="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
                 {{ cirugia.mascota?.nombre || 'Paciente sin asignar' }} - {{ cirugia.tipoAnestesia || 'Anestesia pendiente' }}
               </p>
             </div>
             <div class="flex gap-2">
+              <button class="boton-secundario text-amber-600 border-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-400 dark:hover:bg-amber-950/30" 
+                      type="button" 
+                      *ngIf="cirugia.facturaId && obtenerEstadoPago(cirugia.facturaId) === 'Pendiente'"
+                      (click)="pagarFactura(cirugia.facturaId)">
+                Pagar
+              </button>
               <button class="boton-secundario" type="button" (click)="editar(cirugia)">Editar</button>
               <button class="boton-secundario" type="button" (click)="eliminar(cirugia)">Eliminar</button>
             </div>
@@ -96,7 +117,7 @@
                 </select>
               </label>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-3">
               <label class="grid gap-2">
                 <span class="form-label">Tipo anestesia</span>
                 <input class="campo" name="tipoAnestesia" [(ngModel)]="form.tipoAnestesia">
@@ -104,6 +125,10 @@
               <label class="grid gap-2">
                 <span class="form-label">Cirujano principal</span>
                 <input class="campo" name="cirujanoPrincipal" [(ngModel)]="form.cirujanoPrincipal">
+              </label>
+              <label class="grid gap-2">
+                <span class="form-label">Precio ($)</span>
+                <input class="campo" type="number" name="precio" [(ngModel)]="form.precio" min="0" step="0.01" required>
               </label>
             </div>
             <label class="grid gap-2">

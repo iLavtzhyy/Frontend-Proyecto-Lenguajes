@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { Hospitalizacion, Mascota, Usuario } from '../../core/modelos';
+import { Hospitalizacion, Mascota, Usuario, Factura } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
 import { IconoComponent } from '../../shared/components/icono/icono';
 
@@ -18,6 +18,7 @@ export class HospitalizacionComponent implements OnInit {
   hospitalizaciones: Hospitalizacion[] = [];
   mascotas: Mascota[] = [];
   veterinarios: Usuario[] = [];
+  facturas: Factura[] = [];
   busqueda = '';
   formularioAbierto = false;
   editandoId?: number;
@@ -32,7 +33,23 @@ export class HospitalizacionComponent implements OnInit {
     this.api.veterinarios().subscribe(r => this.veterinarios = r.data);
   }
 
-  cargar() { this.api.hospitalizaciones().subscribe(r => this.hospitalizaciones = r.data); }
+  cargar() { 
+    this.api.hospitalizaciones().subscribe(r => this.hospitalizaciones = r.data); 
+    this.api.facturas().subscribe(r => this.facturas = r.data);
+  }
+
+  pagarFactura(facturaId?: number) {
+    if (!facturaId) return;
+    this.api.actualizarEstadoFactura(facturaId, 'Pagado').subscribe(() => {
+      this.cargar();
+    });
+  }
+
+  obtenerEstadoPago(facturaId?: number): string {
+    if (!facturaId) return 'Pendiente';
+    const f = this.facturas.find(x => x.id === facturaId);
+    return f ? f.estadoPago : 'Pendiente';
+  }
 
   nuevoIngreso() {
     this.editandoId = undefined;
@@ -46,13 +63,14 @@ export class HospitalizacionComponent implements OnInit {
   editar(h: Hospitalizacion) {
     this.editandoId = h.id;
     this.form = {
-      mascotaId: null,
-      veterinarioId: null,
+      mascotaId: h.mascota?.id || null,
+      veterinarioId: h.veterinarioResponsable?.id || null,
       jaula: h.jaula || '',
       motivo: h.motivo || '',
       planCuidados: h.planCuidados || '',
       estado: h.estado || 'Internado',
-      alta: h.alta ? h.alta.slice(0, 16) : ''
+      alta: h.alta ? h.alta.slice(0, 16) : '',
+      precio: h.precio || 45.00
     };
     this.formularioAbierto = true;
     this.mensaje = '';
@@ -74,6 +92,7 @@ export class HospitalizacionComponent implements OnInit {
       planCuidados: this.form.planCuidados,
       estado: this.form.estado,
       alta: this.form.alta || null,
+      precio: this.form.precio,
       mascota: { id: this.form.mascotaId },
       veterinarioResponsable: { id: this.form.veterinarioId }
     }).subscribe(() => {
@@ -94,7 +113,7 @@ export class HospitalizacionComponent implements OnInit {
   }
 
   formularioVacio() {
-    return { mascotaId: null as number | null, veterinarioId: null as number | null, jaula: 'H-01', motivo: '', planCuidados: '', estado: 'Internado', alta: '' };
+    return { mascotaId: null as number | null, veterinarioId: null as number | null, jaula: 'H-01', motivo: '', planCuidados: '', estado: 'Internado', alta: '', precio: 45.00 };
   }
 
   contar(estado: string) { return this.hospitalizaciones.filter(h => (h.estado || '').toLowerCase().includes(estado.toLowerCase())).length; }

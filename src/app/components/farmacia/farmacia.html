@@ -56,6 +56,7 @@
                 <td><span class="badge" [ngClass]="p.stock <= p.stockCritico ? 'badge-danger' : 'badge-ok'">{{ p.stock <= p.stockCritico ? 'Critico' : 'Activo' }}</span></td>
                 <td>
                   <div class="flex flex-wrap gap-2">
+                    <button class="action-link text-emerald-600 dark:text-emerald-400 font-bold" type="button" (click)="abrirFacturar(p)">Facturar</button>
                     <button class="action-link" type="button" (click)="abrirStock(p)">Stock</button>
                     <button class="action-link" type="button" (click)="editarProducto(p)">Editar</button>
                   </div>
@@ -132,6 +133,72 @@
           </form>
 
           <p class="mt-4 text-sm font-bold text-emerald-700 dark:text-emerald-300" *ngIf="mensaje">{{ mensaje }}</p>
+        </aside>
+      </div>
+
+      <!-- Modal Facturacion Farmacia -->
+      <div class="fixed inset-0 z-50 bg-slate-950/60 p-3 backdrop-blur-sm sm:flex sm:justify-end sm:p-5"
+           *ngIf="mostrarFacturacionModal"
+           (click)="mostrarFacturacionModal = false">
+        <aside class="panel h-full w-full max-w-lg overflow-y-auto p-5 shadow-2xl sm:p-6" (click)="$event.stopPropagation()">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="page-eyebrow">Facturar producto</p>
+              <h2 class="section-title">{{ productoAFacturar?.nombre }}</h2>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Genera una factura y actualiza automáticamente el stock en SQL Server.</p>
+            </div>
+            <button class="boton-icono" type="button" (click)="mostrarFacturacionModal = false" aria-label="Cerrar"><app-icono name="x" [size]="18"></app-icono></button>
+          </div>
+
+          <form class="mt-5 grid gap-4" (ngSubmit)="confirmarFacturacion()">
+            <label class="grid gap-2">
+              <span class="form-label">Cliente / Propietario</span>
+              <select class="campo" name="facturacionClienteId" [(ngModel)]="facturacionClienteId" (change)="onFacturacionClienteChange()" required>
+                <option [ngValue]="null">Seleccionar cliente</option>
+                <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombres }} {{ cliente.apellidos }}</option>
+              </select>
+            </label>
+
+            <label class="grid gap-2">
+              <span class="form-label">Mascota / Paciente</span>
+              <select class="campo" name="facturacionMascotaId" [(ngModel)]="facturacionMascotaId" required>
+                <option [ngValue]="null">Seleccionar mascota</option>
+                <option *ngFor="let mascota of mascotasFiltradas" [ngValue]="mascota.id">{{ mascota.nombre }} ({{ mascota.especie }})</option>
+              </select>
+            </label>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="grid gap-2">
+                <span class="form-label">Cantidad (Stock: {{ productoAFacturar?.stock }})</span>
+                <input class="campo" type="number" name="facturacionCantidad" [(ngModel)]="facturacionCantidad" min="1" [max]="productoAFacturar?.stock || 1" required>
+              </label>
+
+              <label class="grid gap-2">
+                <span class="form-label">Estado de pago</span>
+                <select class="campo" name="facturacionEstadoPago" [(ngModel)]="facturacionEstadoPago">
+                  <option>Pendiente</option>
+                  <option>Pagado</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="soft-panel mt-2">
+              <div class="flex justify-between text-sm">
+                <span>Subtotal (x{{ facturacionCantidad }}):</span>
+                <b>\${{ (productoAFacturar?.precio || 0) * facturacionCantidad | number:'1.2-2' }}</b>
+              </div>
+              <div class="flex justify-between text-sm mt-1">
+                <span>IVA (12%):</span>
+                <b>\${{ (productoAFacturar?.precio || 0) * facturacionCantidad * 0.12 | number:'1.2-2' }}</b>
+              </div>
+              <div class="flex justify-between text-base font-black text-slate-950 dark:text-white mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <span>Total Factura:</span>
+                <b class="text-emerald-700 dark:text-emerald-300">\${{ (productoAFacturar?.precio || 0) * facturacionCantidad * 1.12 | number:'1.2-2' }}</b>
+              </div>
+            </div>
+
+            <button class="boton-primario w-full mt-4" type="submit">Generar Factura</button>
+          </form>
         </aside>
       </div>
     </section>

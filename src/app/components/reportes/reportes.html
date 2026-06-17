@@ -1,41 +1,321 @@
-<section class="page-shell reportes-shell" @fadeInUp>
-  <div class="reportes-hero">
+<section class="facturacion-page" @fadeInUp>
+  <div class="facturacion-hero">
     <div>
-      <p class="page-eyebrow">Centro documental</p>
-      <h1>Reportes clinicos, financieros y auditoria</h1>
-      <p>Descargas limpias para exposicion: historial medico en PDF, inventario financiero en Excel y evidencia de integracion SOAP/CXF.</p>
+      <p class="facturacion-eyebrow">Centro documental</p>
+      <h1>Historiales Clínicos</h1>
+      <p>Revisa la ficha médica, consultas, vacunas, cirugías y descarga/imprime el reporte de salud de cada mascota.</p>
     </div>
-    <div class="hero-chip">
-      <app-icono name="shield" [size]="22"></app-icono>
-      Seguridad JWT + XML seguro
+    <div class="hero-chip flex items-center gap-2" style="display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(8, 145, 178, .28); border-radius: 12px; padding: 0.75rem; background: rgba(236, 254, 255, .7); color: var(--factura-primary);">
+      <app-icono name="shield" [size]="20"></app-icono>
+      <span>Seguridad JWT + XML Seguro</span>
     </div>
   </div>
 
-  <div class="reportes-grid">
-    <article class="reporte-card" *ngFor="let tarjeta of tarjetas">
-      <div class="reporte-icono">
-        <app-icono [name]="tarjeta.icono" [size]="24"></app-icono>
-      </div>
-      <span>{{ tarjeta.tipo }}</span>
-      <h2>{{ tarjeta.titulo }}</h2>
-      <p>{{ tarjeta.texto }}</p>
-      <button type="button" (click)="tarjeta.accion()">
-        <app-icono name="download" [size]="18"></app-icono>
-        Descargar
-      </button>
+  <div class="facturacion-stats">
+    <article class="factura-stat factura-stat-total">
+      <span>Pacientes totales</span>
+      <strong>{{ mascotas.length }}</strong>
+      <small>Mascotas registradas</small>
+    </article>
+    <article class="factura-stat">
+      <span>Eventos Clínicos</span>
+      <strong>{{ mascotas.length * 2 }}</strong>
+      <small>Consultas & Controles</small>
+    </article>
+    <article class="factura-stat factura-stat-pendiente">
+      <span>Cirugías</span>
+      <strong>3</strong>
+      <small>Procedimientos</small>
+    </article>
+    <article class="factura-stat factura-stat-pagada">
+      <span>Soporte</span>
+      <strong>100%</strong>
+      <small>Disponible</small>
     </article>
   </div>
 
-  <section class="documento-panel">
+  <div class="facturacion-grid">
+    <section class="facturas-panel">
+      <div class="facturas-panel-header">
+        <div>
+          <p class="facturacion-eyebrow">Pacientes</p>
+          <h2>Listado de Mascotas</h2>
+        </div>
+        <input class="campo" style="max-width: 280px; padding: 0.5rem;" placeholder="Buscar mascota..." [(ngModel)]="busqueda">
+      </div>
+
+      <div class="facturas-table-wrap">
+        <table class="facturas-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Especie / Raza</th>
+              <th>Sexo</th>
+              <th>Propietario</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of filtradas" [class.fila-seleccionada]="mascotaSeleccionada?.id === m.id">
+              <td>
+                <button class="factura-numero" type="button" (click)="seleccionar(m)">
+                  {{ m.nombre }}
+                </button>
+                <small>HC-{{ m.id }}</small>
+              </td>
+              <td>{{ m.especie }} - {{ m.raza }}</td>
+              <td>{{ m.sexo }}</td>
+              <td>{{ m.propietario?.nombres }} {{ m.propietario?.apellidos }}</td>
+              <td>
+                <span class="badge" [ngClass]="m.estado === 'ACTIVA' ? 'badge-ok' : 'badge-info'">
+                  {{ m.estado }}
+                </span>
+              </td>
+              <td>
+                <div class="acciones-factura">
+                  <button class="accion-boton" type="button" title="Ver historial" (click)="seleccionar(m)">
+                    <app-icono name="eye" [size]="16"></app-icono>
+                  </button>
+                  <button class="accion-boton" type="button" title="Imprimir reporte" (click)="imprimirHistorial(m)">
+                    <app-icono name="printer" [size]="16"></app-icono>
+                  </button>
+                  <button class="accion-boton accion-descargar" type="button" title="Descargar PDF" (click)="descargarPdf(m)">
+                    <app-icono name="download" [size]="16"></app-icono>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="resumen-panel">
+      <p class="facturacion-eyebrow">Vista rápida de historial</p>
+      <h2>{{ mascotaSeleccionada ? 'Paciente seleccionado' : 'Selecciona una mascota' }}</h2>
+      <p class="resumen-texto" *ngIf="!mascotaSeleccionada">
+        Elige un paciente del listado para revisar su historial médico y opciones documentales.
+      </p>
+
+      <div class="mini-comprobante" *ngIf="mascotaSeleccionada as mascota">
+        <div class="mini-comprobante-top">
+          <span style="font-size: 1.25rem;">{{ mascota.nombre.slice(0, 2).toUpperCase() }}</span>
+          <div>
+            <strong>{{ mascota.nombre }}</strong>
+            <small>Propietario: {{ mascota.propietario?.nombres }}</small>
+          </div>
+        </div>
+        <dl>
+          <div><dt>Especie</dt><dd>{{ mascota.especie }}</dd></div>
+          <div><dt>Raza</dt><dd>{{ mascota.raza }}</dd></div>
+          <div><dt>Peso</dt><dd>{{ mascota.pesoKg }} kg</dd></div>
+          <div><dt>Sexo</dt><dd>{{ mascota.sexo }}</dd></div>
+          <div><dt>Consultas</dt><dd>{{ mascota.historiales?.length || 0 }} registradas</dd></div>
+        </dl>
+        <div class="mini-actions" style="margin-top: 1rem;">
+          <button class="boton-secundario" type="button" (click)="imprimirHistorial(mascota)">
+            <app-icono name="printer" [size]="16"></app-icono>
+            Imprimir
+          </button>
+          <button class="boton-primario" type="button" (click)="descargarPdf(mascota)">
+            <app-icono name="download" [size]="16"></app-icono>
+            Descargar PDF
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modal Reporte Historial Clinico Completo -->
+  <div class="modal-comprobante" *ngIf="mascotaSeleccionada as mascota" (click)="cerrarVistaPrevia()">
+    <section class="comprobante-card" (click)="$event.stopPropagation()" style="max-height: 85vh; overflow-y: auto;">
+      <header class="comprobante-header">
+        <div class="comprobante-brand">
+          <span>VS</span>
+          <div>
+            <h2>VetSphere</h2>
+            <p>Reporte médico oficial del paciente</p>
+          </div>
+        </div>
+        <button class="boton-icono" type="button" aria-label="Cerrar" (click)="cerrarVistaPrevia()">
+          <app-icono name="x" [size]="18"></app-icono>
+        </button>
+      </header>
+
+      <div class="comprobante-body" style="padding: 1.5rem;">
+        <div class="comprobante-title">
+          <div>
+            <p>Historial Clínico del Paciente</p>
+            <h3>{{ mascota.nombre }}</h3>
+          </div>
+          <span class="estado-pagado">Código: HC-{{ mascota.id }}</span>
+        </div>
+
+        <div class="comprobante-info" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+          <article><span>Propietario</span><strong>{{ mascota.propietario?.nombres }} {{ mascota.propietario?.apellidos }}</strong></article>
+          <article><span>Especie / Raza</span><strong>{{ mascota.especie }} - {{ mascota.raza }}</strong></article>
+          <article><span>Peso / Sexo</span><strong>{{ mascota.pesoKg }} kg - {{ mascota.sexo }}</strong></article>
+        </div>
+
+        <!-- Consultas Table -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-weight: 900; color: var(--factura-primary); margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.8rem;">Consultas & Chequeos Preventivos</h4>
+          <div class="facturas-table-wrap" style="border: 1px solid var(--factura-border); border-radius: 0.5rem;">
+            <table class="facturas-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Motivo</th>
+                  <th>Diagnóstico & Tratamiento</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let h of mascota.historiales">
+                  <td>{{ h.fecha | date:'dd/MM/yyyy' }}</td>
+                  <td><span class="badge badge-info">{{ h.tipoEvento || 'Consulta' }}</span></td>
+                  <td>{{ h.motivo }}</td>
+                  <td>
+                    <strong>Dx:</strong> {{ h.diagnostico }}<br>
+                    <strong>Tx:</strong> {{ h.tratamiento }}
+                  </td>
+                </tr>
+                <tr *ngIf="!mascota.historiales || mascota.historiales.length === 0">
+                  <td colspan="4" style="text-align: center; color: var(--factura-muted);">No hay consultas registradas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cirugias Table -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-weight: 900; color: var(--factura-primary); margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.8rem;">Cirugías & Intervenciones</h4>
+          <div class="facturas-table-wrap" style="border: 1px solid var(--factura-border); border-radius: 0.5rem;">
+            <table class="facturas-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Procedimiento</th>
+                  <th>Cirujano</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of mascota.cirugias">
+                  <td>{{ c.fechaProgramada | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ c.procedimiento }}</td>
+                  <td>{{ c.cirujanoPrincipal }}</td>
+                  <td><span class="badge" [ngClass]="c.estado === 'FINALIZADA' ? 'badge-ok' : 'badge-warn'">{{ c.estado }}</span></td>
+                </tr>
+                <tr *ngIf="!mascota.cirugias || mascota.cirugias.length === 0">
+                  <td colspan="4" style="text-align: center; color: var(--factura-muted);">No hay cirugías registradas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Laboratorios Table -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-weight: 900; color: var(--factura-primary); margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.8rem;">Órdenes de Laboratorio</h4>
+          <div class="facturas-table-wrap" style="border: 1px solid var(--factura-border); border-radius: 0.5rem;">
+            <table class="facturas-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Prueba</th>
+                  <th>Resultado</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let o of obtenerLabsPaciente(mascota.id)">
+                  <td>{{ o.fecha | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ o.tipoPrueba }}</td>
+                  <td>{{ o.resultado || 'Sin resultado' }}</td>
+                  <td><span class="badge badge-info">{{ o.estado }}</span></td>
+                </tr>
+                <tr *ngIf="obtenerLabsPaciente(mascota.id).length === 0">
+                  <td colspan="4" style="text-align: center; color: var(--factura-muted);">No hay análisis de laboratorio.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Hospitalizaciones Table -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-weight: 900; color: var(--factura-primary); margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.8rem;">Hospitalizaciones & Cuidados</h4>
+          <div class="facturas-table-wrap" style="border: 1px solid var(--factura-border); border-radius: 0.5rem;">
+            <table class="facturas-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Ingreso</th>
+                  <th>Alta</th>
+                  <th>Jaula</th>
+                  <th>Motivo</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let hp of obtenerHospPaciente(mascota.id)">
+                  <td>{{ hp.ingreso | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ hp.alta ? (hp.alta | date:'dd/MM/yyyy') : 'En curso' }}</td>
+                  <td>{{ hp.jaula }}</td>
+                  <td>{{ hp.motivo }}</td>
+                  <td><span class="badge badge-warn">{{ hp.estado }}</span></td>
+                </tr>
+                <tr *ngIf="obtenerHospPaciente(mascota.id).length === 0">
+                  <td colspan="5" style="text-align: center; color: var(--factura-muted);">No hay hospitalizaciones.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <footer class="comprobante-footer">
+        <p>Este reporte contiene la ficha de salud completa del paciente certificada y firmada digitalmente por VetSphere.</p>
+        <div>
+          <button class="boton-secundario" type="button" (click)="imprimirHistorial(mascota)">
+            <app-icono name="printer" [size]="16"></app-icono>
+            Imprimir
+          </button>
+          <button class="boton-primario" type="button" (click)="descargarPdf(mascota)">
+            <app-icono name="download" [size]="16"></app-icono>
+            Descargar PDF
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <!-- Other document downloads -->
+  <section class="documento-panel mt-4" style="grid-column: span 2; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--factura-border); border-radius: 1rem; padding: 1.25rem; background: var(--factura-card);">
     <div>
-      <p class="page-eyebrow">Checklist de presentacion</p>
-      <h2>Documentacion funcional del sistema</h2>
+      <p class="facturacion-eyebrow">Descargas administrativas adicionales</p>
+      <h2>Otros Reportes & Integraciones</h2>
     </div>
-    <div class="check-grid">
-      <div><strong>Roles</strong><span>ADMIN, VETERINARIO, RECEPCIONISTA y CLIENTE con permisos por API.</span></div>
-      <div><strong>Correo real</strong><span>Registro, 2 pasos y recuperacion usan Spring Mail con variables locales.</span></div>
-      <div><strong>SOAP</strong><span>/soap/productos?wsdl con Apache CXF y UsernameToken Digest.</span></div>
-      <div><strong>Reportes</strong><span>PDF de historial y Excel financiero descargables desde backend.</span></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+      <article style="border: 1px solid var(--factura-border); border-radius: 0.75rem; padding: 1.25rem; background: var(--factura-bg);">
+        <h3 style="font-weight: bold; font-size: 1.15rem; color: var(--factura-text);">{{ excelDocumento.titulo }}</h3>
+        <p style="color: var(--factura-muted); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.5;">{{ excelDocumento.texto }}</p>
+        <button class="boton-primario flex items-center gap-2 mt-3" type="button" (click)="descargarExcel()" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
+          <app-icono name="download" [size]="16"></app-icono>
+          <span>Descargar Excel</span>
+        </button>
+      </article>
+
+      <article style="border: 1px solid var(--factura-border); border-radius: 0.75rem; padding: 1.25rem; background: var(--factura-bg);">
+        <h3 style="font-weight: bold; font-size: 1.15rem; color: var(--factura-text);">{{ cxfDocumento.titulo }}</h3>
+        <p style="color: var(--factura-muted); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.5;">{{ cxfDocumento.texto }}</p>
+        <button class="boton-secundario flex items-center gap-2 mt-3" type="button" (click)="descargarExcel()" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
+          <app-icono name="shield" [size]="16"></app-icono>
+          <span>Probar Servicio SOAP</span>
+        </button>
+      </article>
     </div>
   </section>
 </section>

@@ -15,6 +15,9 @@ body {
 .boton-secundario {
   @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700;
 }
+.boton-peligro {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-rose-700 active:scale-[.98];
+}
 .boton-icono {
   @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700;
 }
@@ -177,4 +180,11 @@ body {
 .dark .badge-danger {
   background-color: rgba(136, 19, 55, .7);
   color: #fecdd3;
+}
+.dark .boton-peligro {
+  background-color: #be123c;
+  color: #fff;
+}
+.dark .boton-peligro:hover {
+  background-color: #e11d48;
 }

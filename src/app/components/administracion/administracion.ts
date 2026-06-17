@@ -27,4 +27,10 @@ export class AdministracionComponent implements OnInit {
       this.indicadores['solicitudes'] = Math.max(0, (this.indicadores['solicitudes'] || 1) - 1);
     });
   }
+  rechazar(id: number) {
+    this.api.rechazarUsuario(id).subscribe(() => {
+      this.solicitudes = this.solicitudes.filter(s => s.id !== id);
+      this.indicadores['solicitudes'] = Math.max(0, (this.indicadores['solicitudes'] || 1) - 1);
+    });
+  }
 }

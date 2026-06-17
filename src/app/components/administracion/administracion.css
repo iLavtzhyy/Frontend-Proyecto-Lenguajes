@@ -1,0 +1,54 @@
+/* =========================================================
+   VetSphere - Administracion Panel Code Badge Styling
+   ========================================================= */
+
+:host {
+  --admin-primary: #0891b2;
+  --admin-border: #dce8ef;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  display: block;
+}
+
+:host-context(.dark) {
+  --admin-border: #233244;
+  --admin-text: #f8fafc;
+  --admin-muted: #94a3b8;
+}
+
+.codigo-box {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.12), rgba(20, 184, 166, 0.05));
+  border: 1px dashed var(--admin-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin: 1.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.codigo-titulo {
+  font-weight: 950;
+  font-size: 1.1rem;
+  color: var(--admin-primary);
+  margin: 0;
+}
+
+.codigo-desc {
+  font-size: 0.85rem;
+  color: var(--admin-muted);
+  margin: 0.25rem 0 0 0;
+}
+
+.codigo-badge {
+  background: #0891b2;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-family: monospace;
+  font-size: 1.75rem;
+  font-weight: 950;
+  letter-spacing: 0.15em;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+}

@@ -35,6 +35,30 @@
             <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-left dark:border-slate-800 dark:bg-slate-950/40 lg:min-w-56 lg:text-right">
               <p class="text-sm text-slate-500 dark:text-slate-400">{{ consulta.pesoKg }} kg - {{ consulta.temperatura }} C</p>
               <p class="mt-2 text-3xl font-black text-emerald-700 dark:text-emerald-300">\${{ consulta.precio }}</p>
+              
+              <div class="mt-2 flex flex-col items-start lg:items-end gap-1">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-900/60 dark:text-slate-300" 
+                      *ngIf="!consulta.facturaId">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                  Sin Facturar
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300" 
+                      *ngIf="consulta.facturaId && obtenerEstadoPago(consulta.facturaId) === 'Pagado'">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Pagado
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                      *ngIf="consulta.facturaId && obtenerEstadoPago(consulta.facturaId) === 'Pendiente'">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Pendiente
+                </span>
+                <button type="button" class="mt-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-black transition cursor-pointer"
+                        *ngIf="consulta.facturaId && obtenerEstadoPago(consulta.facturaId) === 'Pendiente'"
+                        (click)="pagarFactura(consulta.facturaId)">
+                  Pagar
+                </button>
+              </div>
+
               <div class="mt-3 flex gap-3 lg:justify-end">
                 <button class="action-link" type="button" (click)="editar(consulta)">Editar</button>
                 <button class="action-link" type="button" (click)="eliminar(consulta)">Eliminar</button>

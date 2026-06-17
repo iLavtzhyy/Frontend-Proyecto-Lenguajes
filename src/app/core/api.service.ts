@@ -41,12 +41,15 @@ export class ApiService {
   }
   veterinarios() { return this.http.get<ApiResponse<Usuario[]>>(`${this.api}/veterinarios/publico`); }
   clientes() { return this.http.get<ApiResponse<Cliente[]>>(`${this.api}/clientes`); }
+  crearCliente(datos: any) { return this.http.post<ApiResponse<Cliente>>(`${this.api}/clientes`, datos); }
+  actualizarCliente(id: number, datos: any) { return this.http.put<ApiResponse<Cliente>>(`${this.api}/clientes/${id}`, datos); }
   consultas() { return this.http.get<ApiResponse<ConsultaMedica[]>>(`${this.api}/consultas`); }
   crearConsulta(datos: any) { return this.http.post<ApiResponse<any>>(`${this.api}/consultas`, datos); }
   actualizarConsulta(id: number, datos: any) { return this.http.put<ApiResponse<any>>(`${this.api}/consultas/${id}`, datos); }
   eliminarConsulta(id: number) { return this.http.delete<ApiResponse<void>>(`${this.api}/consultas/${id}`); }
   facturas() { return this.http.get<ApiResponse<Factura[]>>(`${this.api}/facturacion`); }
-  actualizarEstadoFactura(id: number, estadoPago: string) { return this.http.put<ApiResponse<any>>(`${this.api}/facturacion/${id}/estado`, { estadoPago }); }
+  crearFactura(datos: any) { return this.http.post<ApiResponse<Factura>>(`${this.api}/facturacion`, datos); }
+  actualizarEstadoFactura(id: number, estadoPago: string, metodoPago?: string) { return this.http.put<ApiResponse<any>>(`${this.api}/facturacion/${id}/estado`, { estadoPago, metodoPago }); }
   productosCriticos() { return this.http.get<ApiResponse<Producto[]>>(`${this.api}/farmacia/criticos`); }
   productos() { return this.http.get<ApiResponse<Producto[]>>(`${this.api}/farmacia/inventario`); }
   crearProducto(datos: Producto) { return this.http.post<ApiResponse<Producto>>(`${this.api}/farmacia/inventario`, datos); }
@@ -69,11 +72,15 @@ export class ApiService {
   recepcion() { return this.http.get<ApiResponse<Record<string, number>>>(`${this.api}/recepcion/panel`); }
   usuarios() { return this.http.get<ApiResponse<Usuario[]>>(`${this.api}/admin/usuarios`); }
   crearUsuario(datos: any) { return this.http.post<ApiResponse<Usuario>>(`${this.api}/admin/usuarios`, datos); }
+  actualizarUsuario(id: number, datos: any) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/admin/usuarios/${id}`, datos); }
   actualizarRolesUsuario(id: number, roles: string[]) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/admin/usuarios/${id}/roles`, { roles }); }
+  eliminarUsuario(id: number) { return this.http.delete<ApiResponse<void>>(`${this.api}/admin/usuarios/${id}`); }
   solicitudesPendientes() { return this.http.get<ApiResponse<Usuario[]>>(`${this.api}/admin/usuarios/solicitudes-pendientes`); }
   aprobarUsuario(id: number) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/admin/usuarios/${id}/aprobar`, {}); }
+  rechazarUsuario(id: number) { return this.http.put<ApiResponse<void>>(`${this.api}/admin/usuarios/${id}/rechazar`, {}); }
   citas() { return this.http.get<ApiResponse<any[]>>(`${this.api}/citas`); }
   crearCita(datos: any) { return this.http.post<ApiResponse<any>>(`${this.api}/citas`, datos); }
+  actualizarCita(id: number, datos: any) { return this.http.put<ApiResponse<any>>(`${this.api}/citas/${id}`, datos); }
   actualizarVeterinario(id: number, datos: any) { return this.http.put<ApiResponse<Usuario>>(`${this.api}/equipo-veterinario/${id}`, datos); }
 
   subirArchivo(archivo: File) {

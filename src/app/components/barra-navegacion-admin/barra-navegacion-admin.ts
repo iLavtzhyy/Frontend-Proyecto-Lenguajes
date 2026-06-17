@@ -34,7 +34,7 @@ export class LayoutComponent implements OnInit {
 
   grupos: GrupoMenu[] = [
     { titulo: 'Principal', items: [
-      { nombre: 'Dashboard', ruta: '/dashboard', icono: 'dashboard', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA', 'ROLE_CLIENTE'] },
+      { nombre: 'Dashboard', ruta: '/dashboard', icono: 'dashboard', roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA'] },
       { nombre: 'Reportes', ruta: '/reportes', icono: 'file', roles: ['ROLE_ADMIN'] }
     ] },
     { titulo: 'Gestion', items: [

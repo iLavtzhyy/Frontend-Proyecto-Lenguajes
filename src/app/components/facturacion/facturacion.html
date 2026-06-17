@@ -5,7 +5,7 @@
       <h1>Facturacion</h1>
       <p>Gasto por cliente, servicios clinicos, farmacia, comprobantes y estado de pago.</p>
     </div>
-    <button class="boton-primario" type="button">
+    <button class="boton-primario" type="button" (click)="abrirNuevaFactura()">
       <app-icono name="receipt" [size]="18"></app-icono>
       Nueva factura
     </button>
@@ -108,6 +108,7 @@
           <div><dt>Cliente</dt><dd>{{ factura.cliente }}</dd></div>
           <div><dt>Mascota</dt><dd>{{ factura.mascota }}</dd></div>
           <div><dt>Concepto</dt><dd>{{ factura.concepto }}</dd></div>
+          <div *ngIf="factura.metodoPago"><dt>Método</dt><dd>{{ factura.metodoPago }}</dd></div>
           <div><dt>Total</dt><dd>${{ factura.total | number:'1.2-2' }}</dd></div>
         </dl>
         <div class="mini-actions">
@@ -157,6 +158,7 @@
           <article><span>Fecha</span><strong>{{ factura.fecha | date:'dd/MM/yyyy' }}</strong></article>
           <article><span>Mascota</span><strong>{{ factura.mascota }}</strong></article>
           <article><span>Atencion</span><strong>{{ factura.concepto }}</strong></article>
+          <article *ngIf="factura.metodoPago"><span>Método</span><strong>{{ factura.metodoPago }}</strong></article>
         </div>
 
         <div class="comprobante-linea">
@@ -199,7 +201,7 @@
         <button class="boton-icono" type="button" (click)="cerrarPago()"><app-icono name="x" [size]="18"></app-icono></button>
       </header>
       <div class="comprobante-body">
-        <label class="grid gap-2">
+        <label class="grid gap-2" style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
           <span class="form-label">Estado de pago</span>
           <select class="campo" [(ngModel)]="estadoPago" name="estadoPago">
             <option>Pagado</option>
@@ -207,11 +209,162 @@
             <option>Anulado</option>
           </select>
         </label>
+        <label *ngIf="estadoPago === 'Pagado'" class="grid gap-2" style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
+          <span class="form-label">Método de pago</span>
+          <select class="campo" [(ngModel)]="metodoPago" name="metodoPago">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+          </select>
+        </label>
         <div class="comprobante-total">
           <span>Total factura</span>
           <strong>${{ factura.total | number:'1.2-2' }}</strong>
         </div>
         <button class="boton-primario w-full" type="button" (click)="guardarPago()">Guardar estado</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal Nueva Factura -->
+  <div class="modal-comprobante" *ngIf="mostrarFormFactura" (click)="cerrarNuevaFactura()">
+    <section class="comprobante-card nueva-factura-card" (click)="$event.stopPropagation()">
+      <header class="comprobante-header">
+        <div class="comprobante-brand">
+          <span>VS</span>
+          <div>
+            <h2>Emitir nueva factura</h2>
+            <p>Elige facturación directa o automática de servicios</p>
+          </div>
+        </div>
+        <button class="boton-icono" type="button" aria-label="Cerrar" (click)="cerrarNuevaFactura()">
+          <app-icono name="x" [size]="18"></app-icono>
+        </button>
+      </header>
+
+      <div class="comprobante-body" style="max-height: 70vh; overflow-y: auto; padding: 1.5rem;">
+        <!-- Toggles / Tabs -->
+        <div class="tab-buttons">
+          <button [class.activo]="tipoFacturacion === 'automatica'" type="button" (click)="cambiarTipoFacturacion('automatica')">
+            Automática (Servicios)
+          </button>
+          <button [class.activo]="tipoFacturacion === 'directa'" type="button" (click)="cambiarTipoFacturacion('directa')">
+            Directa (Manual)
+          </button>
+        </div>
+
+        <form (ngSubmit)="guardarNuevaFactura()" class="grid gap-4" style="display: grid; gap: 1rem;">
+          <!-- Common Fields -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+              <span class="form-label">Número de factura</span>
+              <input class="campo" type="text" name="numero" [(ngModel)]="nuevaFactura.numero" required readonly>
+            </label>
+            <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+              <span class="form-label">Fecha de emisión</span>
+              <input class="campo" type="datetime-local" name="fecha" [(ngModel)]="nuevaFactura.fecha" required>
+            </label>
+          </div>
+
+          <!-- AUTOMATICA MODE -->
+          <div *ngIf="tipoFacturacion === 'automatica'" style="display: grid; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Cliente (Propietario)</span>
+                <select class="campo" name="clienteId" [(ngModel)]="nuevaFactura.clienteId" (change)="onClienteChange()" required>
+                  <option [ngValue]="null">Seleccionar cliente</option>
+                  <option *ngFor="let c of clientes" [ngValue]="c.id">{{ c.nombres }} {{ c.apellidos }}</option>
+                </select>
+              </label>
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Mascota</span>
+                <select class="campo" name="mascotaId" [(ngModel)]="nuevaFactura.mascotaId" (change)="onMascotaChange()" required [disabled]="!nuevaFactura.clienteId">
+                  <option [ngValue]="null">Seleccionar mascota</option>
+                  <option *ngFor="let m of mascotasFiltradas" [ngValue]="m.id">{{ m.nombre }} ({{ m.especie }})</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- Pending Items List -->
+            <div *ngIf="nuevaFactura.mascotaId" style="border: 1px solid var(--factura-border); border-radius: 0.75rem; padding: 1rem; background: var(--factura-bg);">
+              <span class="form-label" style="margin-bottom: 0.75rem; display: block; font-weight: 900; color: var(--factura-primary);">Servicios clínicos pendientes</span>
+              
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 200px; overflow-y: auto;">
+                <div *ngFor="let item of serviciosPaciente" class="servicio-item">
+                  <input type="checkbox" [id]="'srv-' + item.tipo + '-' + item.id" [name]="'srv-' + item.tipo + '-' + item.id" [(ngModel)]="item.seleccionado" (change)="calcularTotalesAutomaticos()">
+                  <label [for]="'srv-' + item.tipo + '-' + item.id" style="flex: 1; font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column;">
+                    <strong style="color: var(--factura-text);">{{ item.tipo }}</strong>
+                    <span style="color: var(--factura-muted);">{{ item.descripcion }}</span>
+                    <small style="color: var(--factura-muted); font-size: 0.75rem;">{{ item.fecha | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </label>
+                  <span style="font-weight: 950; color: var(--factura-success); font-size: 0.95rem;">${{ item.precio | number:'1.2-2' }}</span>
+                </div>
+                <div *ngIf="serviciosPaciente.length === 0" style="text-align: center; padding: 1.5rem 0; color: var(--factura-muted); font-size: 0.85rem;">
+                  No hay consultas, cirugías, exámenes de laboratorio ni hospitalizaciones registrados para esta mascota.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIRECTA MODE -->
+          <div *ngIf="tipoFacturacion === 'directa'" style="display: grid; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Cliente (Propietario)</span>
+                <select class="campo" name="clienteId" [(ngModel)]="nuevaFactura.clienteId" required>
+                  <option [ngValue]="null">Seleccionar cliente</option>
+                  <option *ngFor="let c of clientes" [ngValue]="c.id">{{ c.nombres }} {{ c.apellidos }}</option>
+                </select>
+              </label>
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Mascota</span>
+                <select class="campo" name="mascotaId" [(ngModel)]="nuevaFactura.mascotaId" required [disabled]="!nuevaFactura.clienteId">
+                  <option [ngValue]="null">Seleccionar mascota</option>
+                  <option *ngFor="let m of mascotas" [ngValue]="m.id">{{ m.nombre }} ({{ m.especie }})</option>
+                </select>
+              </label>
+            </div>
+            <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+              <span class="form-label">Concepto de facturación</span>
+              <input class="campo" type="text" name="conceptoDirecto" [(ngModel)]="nuevaFactura.concepto" required placeholder="Ej. Medicamentos / Alimento / Consulta manual">
+            </label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Subtotal ($)</span>
+                <input class="campo" type="number" name="subtotalDirecto" [(ngModel)]="nuevaFactura.subtotal" (input)="onSubtotalDirectoChange()" required min="0" step="0.01">
+              </label>
+              <label class="grid gap-2" style="display: grid; gap: 0.5rem;">
+                <span class="form-label">Estado de pago</span>
+                <select class="campo" name="estadoPagoDirecto" [(ngModel)]="nuevaFactura.estadoPago" required>
+                  <option>Pendiente</option>
+                  <option>Pagado</option>
+                </select>
+              </label>
+            </div>
+            <label *ngIf="nuevaFactura.estadoPago === 'Pagado'" class="grid gap-2" style="display: grid; gap: 0.5rem;">
+              <span class="form-label">Método de pago</span>
+              <select class="campo" name="metodoPagoDirecto" [(ngModel)]="nuevaFactura.metodoPago" required>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta">Tarjeta</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Total Calculation Display -->
+          <div class="comprobante-total" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem;">
+            <div>
+              <span style="color: #bae6fd; font-size: 0.8rem; text-transform: uppercase; display: block; font-weight: bold;">Subtotal: ${{ nuevaFactura.subtotal | number:'1.2-2' }}</span>
+              <span style="color: #cbd5e1; font-size: 0.75rem; display: block; margin-top: 0.2rem;">IVA (12%): ${{ nuevaFactura.impuestos | number:'1.2-2' }}</span>
+            </div>
+            <div style="text-align: right;">
+              <span style="color: #bae6fd; font-size: 0.75rem; text-transform: uppercase; block; font-weight: 800;">Total Facturado</span>
+              <strong style="font-size: 1.75rem; font-weight: 950;">${{ nuevaFactura.total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <button class="boton-primario w-full font-black" type="submit" style="padding: 1rem; font-size: 1rem;">Emitir Factura</button>
+        </form>
       </div>
     </section>
   </div>

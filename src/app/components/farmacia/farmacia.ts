@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { Producto } from '../../core/modelos';
+import { Producto, Cliente, Mascota } from '../../core/modelos';
 import { fadeInUp } from '../../shared/animations/fade-in-up';
 import { IconoComponent } from '../../shared/components/icono/icono';
 
@@ -27,9 +27,24 @@ export class FarmaciaComponent implements OnInit {
   mensaje = '';
   form: Producto = this.formularioVacio();
 
+  // Farmacia Billing Modal
+  mostrarFacturacionModal = false;
+  productoAFacturar?: Producto;
+  clientes: Cliente[] = [];
+  mascotas: Mascota[] = [];
+  mascotasFiltradas: Mascota[] = [];
+  facturacionClienteId: number | null = null;
+  facturacionMascotaId: number | null = null;
+  facturacionCantidad = 1;
+  facturacionEstadoPago = 'Pendiente';
+
   constructor(private api: ApiService) {}
 
-  ngOnInit() { this.cargar(); }
+  ngOnInit() { 
+    this.cargar(); 
+    this.api.clientes().subscribe(r => this.clientes = r.data);
+    this.api.mascotas().subscribe(r => this.mascotas = r.data);
+  }
 
   cargar() {
     this.api.productos().subscribe({
@@ -98,6 +113,69 @@ export class FarmaciaComponent implements OnInit {
         this.cerrarFormulario();
       },
       error: () => this.mensaje = 'No se pudo actualizar el stock. Verifica permiso de recepcion/admin.'
+    });
+  }
+
+  abrirFacturar(producto: Producto) {
+    this.productoAFacturar = producto;
+    this.facturacionClienteId = null;
+    this.facturacionMascotaId = null;
+    this.facturacionCantidad = 1;
+    this.facturacionEstadoPago = 'Pendiente';
+    this.mascotasFiltradas = [];
+    this.mostrarFacturacionModal = true;
+    this.mensaje = '';
+  }
+
+  onFacturacionClienteChange() {
+    this.facturacionMascotaId = null;
+    if (this.facturacionClienteId) {
+      this.mascotasFiltradas = this.mascotas.filter(m => m.propietario?.id === this.facturacionClienteId);
+    } else {
+      this.mascotasFiltradas = [];
+    }
+  }
+
+  confirmarFacturacion() {
+    if (!this.productoAFacturar) return;
+    if (!this.facturacionClienteId || !this.facturacionMascotaId) {
+      alert('Por favor selecciona un cliente y una mascota.');
+      return;
+    }
+    if (this.facturacionCantidad <= 0 || this.facturacionCantidad > this.productoAFacturar.stock) {
+      alert('Cantidad inválida o superior al stock disponible.');
+      return;
+    }
+
+    const sub = Number((this.productoAFacturar.precio * this.facturacionCantidad).toFixed(2));
+    const imp = Number((sub * 0.12).toFixed(2));
+    const tot = Number((sub * 1.12).toFixed(2));
+    const nextNum = Math.floor(Math.random() * 9000) + 1000;
+
+    this.api.agregarStock(this.productoAFacturar.codigo, -this.facturacionCantidad).subscribe({
+      next: () => {
+        const payload = {
+          numero: `FAC-2026-F${nextNum}`,
+          fecha: new Date().toISOString().slice(0, 19),
+          concepto: `Compra Farmacia: ${this.productoAFacturar!.nombre} (x${this.facturacionCantidad})`,
+          subtotal: sub,
+          impuestos: imp,
+          total: tot,
+          estadoPago: this.facturacionEstadoPago,
+          cliente: { id: this.facturacionClienteId },
+          mascota: { id: this.facturacionMascotaId }
+        };
+
+        this.api.crearFactura(payload).subscribe({
+          next: () => {
+            this.mensaje = 'Producto facturado y stock actualizado correctamente.';
+            this.mostrarFacturacionModal = false;
+            this.cargar();
+          },
+          error: () => alert('Error al crear la factura.')
+        });
+      },
+      error: () => alert('Error al actualizar el stock.')
     });
   }
 

@@ -31,7 +31,7 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: 'dashboard', component: DashboardComponent },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO', 'ROLE_RECEPCIONISTA'] } },
       { path: 'clientes', component: ClientesComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] } },
       { path: 'consultas', component: ConsultasComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },
       { path: 'cirugias', component: CirugiasComponent, canActivate: [authGuard], data: { roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'] } },

@@ -19,8 +19,204 @@ export class FacturacionComponent implements OnInit {
   facturaSeleccionada?: Factura;
   facturaPago?: Factura;
   estadoPago = 'Pendiente';
+  metodoPago = 'Efectivo';
   mensajePago = '';
   fechaEmision = new Date();
+
+  clientes: any[] = [];
+  mascotas: any[] = [];
+  todasConsultas: any[] = [];
+  todasCirugias: any[] = [];
+  todosLabs: any[] = [];
+  todasHosp: any[] = [];
+
+  mostrarFormFactura = false;
+  tipoFacturacion = 'automatica';
+  mascotasFiltradas: any[] = [];
+  serviciosPaciente: any[] = [];
+  nuevaFactura = this.facturaVacia();
+
+  facturaVacia() {
+    return {
+      numero: '',
+      fecha: new Date().toISOString().slice(0, 16),
+      clienteId: null as number | null,
+      mascotaId: null as number | null,
+      clienteNombre: '',
+      mascotaNombre: '',
+      concepto: '',
+      subtotal: 0,
+      impuestos: 0,
+      total: 0,
+      estadoPago: 'Pendiente',
+      metodoPago: 'Efectivo'
+    };
+  }
+
+  abrirNuevaFactura() {
+    this.nuevaFactura = this.facturaVacia();
+    const nextNum = this.facturas.length + 1;
+    this.nuevaFactura.numero = `FAC-2026-${String(nextNum).padStart(4, '0')}`;
+    this.tipoFacturacion = 'automatica';
+    this.serviciosPaciente = [];
+    this.mascotasFiltradas = [];
+
+    this.api.clientes().subscribe(r => this.clientes = r.data);
+    this.api.mascotas().subscribe(r => this.mascotas = r.data);
+    this.api.consultas().subscribe(r => this.todasConsultas = r.data);
+    this.api.cirugias().subscribe(r => this.todasCirugias = r.data);
+    this.api.laboratorio().subscribe(r => this.todosLabs = r.data);
+    this.api.hospitalizaciones().subscribe(r => this.todasHosp = r.data);
+
+    this.mostrarFormFactura = true;
+  }
+
+  cerrarNuevaFactura() {
+    this.mostrarFormFactura = false;
+  }
+
+  cambiarTipoFacturacion(tipo: string) {
+    this.tipoFacturacion = tipo;
+    this.calcularTotalesAutomaticos();
+  }
+
+  onClienteChange() {
+    this.nuevaFactura.mascotaId = null;
+    this.serviciosPaciente = [];
+    this.mascotasFiltradas = this.mascotas.filter(m => m.propietario?.id === this.nuevaFactura.clienteId);
+    this.calcularTotalesAutomaticos();
+  }
+
+  onMascotaChange() {
+    this.serviciosPaciente = [];
+    if (!this.nuevaFactura.mascotaId) {
+      this.calcularTotalesAutomaticos();
+      return;
+    }
+    const mascotaId = this.nuevaFactura.mascotaId;
+    const petObj = this.mascotas.find(m => m.id === mascotaId);
+    if (!petObj) return;
+
+    if (petObj.historiales) {
+      petObj.historiales.forEach((h: any) => {
+        if (!h.facturaId) {
+          this.serviciosPaciente.push({
+            tipo: 'Consulta',
+            id: h.id,
+            descripcion: `${h.tipoEvento || 'Consulta'} - ${h.motivo}`,
+            fecha: h.fecha,
+            precio: h.precio || 45.00,
+            seleccionado: false
+          });
+        }
+      });
+    }
+
+    if (petObj.cirugias) {
+      petObj.cirugias.forEach((c: any) => {
+        if (!c.facturaId) {
+          this.serviciosPaciente.push({
+            tipo: 'Cirugía',
+            id: c.id,
+            descripcion: c.procedimiento,
+            fecha: c.fechaProgramada,
+            precio: c.precio || 280.00,
+            seleccionado: false
+          });
+        }
+      });
+    }
+
+    const labOrders = this.todosLabs.filter(o => o.mascota?.id === mascotaId);
+    labOrders.forEach((l: any) => {
+      if (!l.facturaId) {
+        this.serviciosPaciente.push({
+          tipo: 'Laboratorio',
+          id: l.id,
+          descripcion: l.tipoPrueba,
+          fecha: l.fecha,
+          precio: l.precio || 35.00,
+          seleccionado: false
+        });
+      }
+    });
+
+    const hospOrders = this.todasHosp.filter(h => h.mascota?.id === mascotaId);
+    hospOrders.forEach((hp: any) => {
+      if (!hp.facturaId) {
+        this.serviciosPaciente.push({
+          tipo: 'Hospitalización',
+          id: hp.id,
+          descripcion: hp.motivo,
+          fecha: hp.ingreso,
+          precio: hp.precio || 45.00,
+          seleccionado: false
+        });
+      }
+    });
+
+    this.calcularTotalesAutomaticos();
+  }
+
+  calcularTotalesAutomaticos() {
+    if (this.tipoFacturacion === 'directa') {
+      this.onSubtotalDirectoChange();
+      return;
+    }
+
+    const seleccionados = this.serviciosPaciente.filter(s => s.seleccionado);
+    const subtotal = seleccionados.reduce((sum, s) => sum + s.precio, 0);
+    this.nuevaFactura.subtotal = subtotal;
+    this.nuevaFactura.impuestos = Number((subtotal * 0.12).toFixed(2));
+    this.nuevaFactura.total = Number((subtotal * 1.12).toFixed(2));
+
+    if (seleccionados.length > 0) {
+      this.nuevaFactura.concepto = seleccionados.map(s => `${s.tipo}: ${s.descripcion}`).join(' + ');
+    } else {
+      this.nuevaFactura.concepto = '';
+    }
+  }
+
+  onSubtotalDirectoChange() {
+    const sub = Number(this.nuevaFactura.subtotal || 0);
+    this.nuevaFactura.impuestos = Number((sub * 0.12).toFixed(2));
+    this.nuevaFactura.total = Number((sub * 1.12).toFixed(2));
+  }
+
+  guardarNuevaFactura() {
+    if (this.tipoFacturacion === 'automatica' && (!this.nuevaFactura.clienteId || !this.nuevaFactura.mascotaId)) {
+      alert('Por favor, selecciona un cliente y una mascota.');
+      return;
+    }
+    if (!this.nuevaFactura.concepto || this.nuevaFactura.total <= 0) {
+      alert('El concepto no puede estar vacío y el total debe ser mayor a 0.');
+      return;
+    }
+
+    const seleccionados = this.serviciosPaciente.filter(s => s.seleccionado);
+
+    const payload = {
+      numero: this.nuevaFactura.numero,
+      fecha: new Date(this.nuevaFactura.fecha).toISOString().slice(0, 19),
+      concepto: this.nuevaFactura.concepto,
+      subtotal: this.nuevaFactura.subtotal,
+      impuestos: this.nuevaFactura.impuestos,
+      total: this.nuevaFactura.total,
+      estadoPago: this.nuevaFactura.estadoPago,
+      metodoPago: this.nuevaFactura.estadoPago === 'Pagado' ? this.nuevaFactura.metodoPago : '',
+      cliente: this.tipoFacturacion === 'automatica' ? { id: this.nuevaFactura.clienteId } : null,
+      mascota: this.tipoFacturacion === 'automatica' ? { id: this.nuevaFactura.mascotaId } : null,
+      consultaIds: seleccionados.filter(s => s.tipo === 'Consulta').map(s => s.id),
+      cirugiaIds: seleccionados.filter(s => s.tipo === 'Cirugía').map(s => s.id),
+      laboratorioIds: seleccionados.filter(s => s.tipo === 'Laboratorio').map(s => s.id),
+      hospitalizacionIds: seleccionados.filter(s => s.tipo === 'Hospitalización').map(s => s.id)
+    };
+
+    this.api.crearFactura(payload).subscribe(() => {
+      this.mostrarFormFactura = false;
+      this.api.facturas().subscribe(r => this.facturas = r.data);
+    });
+  }
 
   constructor(private api: ApiService) {}
 
@@ -62,6 +258,7 @@ export class FacturacionComponent implements OnInit {
   abrirPago(factura: Factura) {
     this.facturaPago = factura;
     this.estadoPago = factura.estadoPago || 'Pendiente';
+    this.metodoPago = factura.metodoPago || 'Efectivo';
     this.mensajePago = '';
   }
 
@@ -71,8 +268,8 @@ export class FacturacionComponent implements OnInit {
 
   guardarPago() {
     if (!this.facturaPago) return;
-    this.api.actualizarEstadoFactura(this.facturaPago.id, this.estadoPago).subscribe(r => {
-      const actualizada = { ...this.facturaPago!, estadoPago: r.data.estadoPago || this.estadoPago };
+    this.api.actualizarEstadoFactura(this.facturaPago.id, this.estadoPago, this.estadoPago === 'Pagado' ? this.metodoPago : '').subscribe(r => {
+      const actualizada = { ...this.facturaPago!, estadoPago: r.data.estadoPago || this.estadoPago, metodoPago: r.data.metodoPago || '' };
       this.facturas = this.facturas.map(f => f.id === actualizada.id ? actualizada : f);
       if (this.facturaSeleccionada?.id === actualizada.id) this.facturaSeleccionada = actualizada;
       this.mensajePago = 'Estado de pago actualizado.';
@@ -87,6 +284,7 @@ export class FacturacionComponent implements OnInit {
     const total = subtotal + iva;
     const estado = factura.estadoPago === 'Pagado' ? 'PAGO CONFIRMADO' : 'PENDIENTE DE PAGO';
     const imprimirScript = imprimir ? '<script>window.onload = () => setTimeout(() => window.print(), 350);</script>' : '';
+    const metodoPagoDiv = factura.metodoPago ? `<div class="box"><div class="label">Método de Pago</div><div class="value">${this.escapar(factura.metodoPago)}</div></div>` : '';
 
     return `<!doctype html>
 <html lang="es">
@@ -150,6 +348,7 @@ export class FacturacionComponent implements OnInit {
           <div class="box"><div class="label">Fecha</div><div class="value">${fechaFactura}</div></div>
           <div class="box"><div class="label">Paciente</div><div class="value">${this.escapar(factura.mascota)}</div></div>
           <div class="box"><div class="label">Estado</div><div class="value">${this.escapar(factura.estadoPago)}</div></div>
+          ${metodoPagoDiv}
         </div>
 
         <table>
